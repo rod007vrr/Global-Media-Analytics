@@ -12,7 +12,8 @@ app.use(
 
 // We use express to define our various API endpoints and
 // provide their handlers that we implemented in routes.js
-app.get("/author/:type", routes.author);
+app.get("/songs", routes.search_songs);
+app.get("/test", routes.test_connection);
 
 app.listen(config.server_port, () => {
   console.log(
