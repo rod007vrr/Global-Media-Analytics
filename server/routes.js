@@ -159,6 +159,48 @@ const search_songs = async function (req, res) {
   );
 };
 
+
+/*
+method: GET
+description: for a given artist, compares their chart survivability across all countries that they have top charting songs
+query parameters:
+  artist: the name of the artist
+returns: array of objects corresponding to different countrys' survivabilities
+status: 200 on success and 500 on error
+*/
+const chart_survivability = async function (req, res) {
+  // checks the value of type the request parameters
+  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+  // we can also send back an HTTP status code to indicate an improper request
+  const artist =
+    req.query.artist_individual == "undefined" ? "" : req.query.artist_individual;
+
+  connection.query(`
+  WITH top_ten AS (
+    SELECT country, COUNT(DISTINCT track_name) as top_tens
+    FROM spotify_songs s JOIN spotify_ranks sr on s.uri = sr.uri
+    WHERE s.artist_names LIKE '%${artist}%' AND sr.peak_rank <= 10
+    GROUP BY country
+    ORDER BY top_tens
+    ), weeks AS (
+    SELECT country, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks
+    FROM spotify_songs s JOIN spotify_ranks r ON s.uri = r.uri
+    WHERE s.artist_names LIKE '%${artist}%'
+    GROUP BY country
+    ) SELECT tt.country, top_tens, total_weeks, avg_weeks
+    FROM top_ten tt JOIN weeks w ON tt.country = w.country
+    WHERE tt.country <> 'Global'
+    ORDER BY top_tens DESC, total_weeks DESC, avg_weeks DESC
+  `, (err, data) => {
+    if (err || data.length === 0) {
+      console.log(err);
+      res.sendStatus(500);
+    } else {
+      res.status(200).send(data);
+    }
+  });
+}
+
 const test_connection = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
