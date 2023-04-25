@@ -387,6 +387,86 @@ const chart_survivability = async function (req, res) {
     }
   );
 };
+/**
+ * GET ROUTE - retrieves artist rankings for a given week in a given country
+ * @param req needs to contain:
+ * - week - the week in which to get rankings from
+ * - country - the country to get rankings from
+ */
+const artist_rankings = async function (req, res) {
+  // checks the value of type the request parameters
+  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+  // we can also send back an HTTP status code to indicate an improper request
+  const week = req.query.week == "undefined" ? -1 : req.query.week;
+  const country = req.query.country == "undefined" ? -1 : req.query.country;
+
+  connection.query(
+    `
+  WITH power as(
+    SELECT uri, song_chart_week, country,
+           (200-peak_rank) + log(weeks_on_chart) +
+           CASE WHEN 0 < peak_rank-song_chart_rank THEN 0
+           ELSE peak_rank-song_chart_rank END
+               as pscore
+    FROM spotify_ranks
+    WHERE song_chart_week = ${week}$ and country = "${country}$"
+),
+songs_with_indiv_artist as(
+    SELECT artist_id, uri
+    FROM
+        spotify_artist
+        JOIN spotify_songs
+            on FIND_IN_SET(artist_individual, REPLACE(artist_names, ', ', ',' )) >0
+)
+SELECT artist_id, song_chart_week, country, SUM(pscore) as value
+FROM songs_with_indiv_artist JOIN power on power.uri = songs_with_indiv_artist.uri
+GROUP BY artist_id, song_chart_week, country;
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    }
+  );
+};
+
+/**
+ * GET ROUTE - retrieves show rankings for a given date range in a given country
+ * @param req needs to contain:
+ * - start - the week in which to get rankings from
+ * - end - the week in which to get rankings from
+ * - country - the country to get rankings from
+ */
+const netflix_rankings = async function (req, res) {
+  // checks the value of type the request parameters
+  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+  // we can also send back an HTTP status code to indicate an improper request
+  const start = req.query.start == "undefined" ? -1 : req.query.start;
+  const end = req.query.end == "undefined" ? -1 : req.query.end;
+  const country = req.query.country == "undefined" ? -1 : req.query.country;
+
+  connection.query(
+    `
+    SELECT show_title, max(cumulative_weeks) * avg(weekly_rank) + min(weekly_rank) as power
+    FROM netflix_ranks
+    where week >= ${start}$ and week <= ${end}$
+        and country = "${country}$"
+    GROUP BY show_title
+    ORDER BY power DESC;
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    }
+  );
+};
 
 const test_connection = async function (req, res) {
   // checks the value of type the request parameters
@@ -426,6 +506,8 @@ module.exports = {
   get_top_ten_media,
   get_yearly_top_media,
   get_media_rank_range,
+  artist_rankings,
+  netflix_rankings,
 };
 
 // COMMENTS
