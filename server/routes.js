@@ -12,28 +12,73 @@ const connection = mysql.createConnection({
 });
 connection.connect((err) => err && console.log(err));
 
-/******************
- * WARM UP ROUTES *
- ******************/
+/************ SCHEMA  *************
+
+create table netflix_rank
+(
+   show_title       varchar(255) not null,
+   country          varchar(255) not null,
+   movie_chart_week date         not null,
+   movie_chart_rank int          null,
+   total_weeks      int          null,
+   primary key (show_title, movie_chart_week, country)
+);
+
+
+create table netflix_category
+(
+   show_title varchar(255) not null
+       primary key,
+   category   varchar(255) null,
+   constraint netflix_category_ibfk_1
+       foreign key (show_title) references netflix_rank (show_title)
+);
+
+
+create table spotify_artist
+(
+   artist_individual varchar(255) not null
+       primary key,
+   artist_id         varchar(255) null,
+   artist_img        varchar(255) null
+);
+
+
+create table spotify_songs
+(
+   uri          varchar(255) not null
+       primary key,
+   artist_names varchar(255) null,
+   artists_num  int          null,
+   track_name   varchar(255) null,
+   release_date varchar(255) null,
+   album_cover  varchar(255) null,
+   danceability int          null,
+   energy       int          null,
+   song_key     int          null,
+   valence      int          null,
+   tempo        int          null,
+   duration     int          null
+);
+
+
+create table spotify_ranks
+(
+   uri             varchar(255) not null,
+   country         varchar(255) not null,
+   song_chart_week varchar(255) not null,
+   song_chart_rank int          null,
+   peak_rank       int          null,
+   previous_rank   int          null,
+   weeks_on_chart  int          null,
+   primary key (uri, country, song_chart_week),
+   constraint spotify_ranks_ibfk_1
+       foreign key (uri) references spotify_songs (uri)
+);
+
+**************************/
 
 // Route 1:
-// const author = async function (req, res) {
-//   // checks the value of type the request parameters
-//   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
-//   if (req.params.type === "name") {
-//     // res.send returns data back to the requester via an HTTP response
-//     res.send(`Created by ${name}`);
-//   } else if (null) {
-//     // TODO (TASK 2): edit the else if condition to check if the request parameter is 'pennkey' and if so, send back response 'Created by [pennkey]'
-//   } else {
-//     // we can also send back an HTTP status code to indicate an improper request
-//     res
-//       .status(400)
-//       .send(
-//         `'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`
-//       );
-//   }
-// };
 /* endpoint: /songs
 method: GET
 description: returns all songs in the database that match the query parameters
@@ -74,7 +119,8 @@ song object:
   duration: duration of song,
 }
 status: 200 on success and 500 on error
-*/
+*********************/
+
 const search_songs = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
@@ -159,7 +205,6 @@ const search_songs = async function (req, res) {
   );
 };
 
-
 /*
 method: GET
 description: for a given artist, compares their chart survivability across all countries that they have top charting songs
@@ -173,9 +218,12 @@ const chart_survivability = async function (req, res) {
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
   const artist =
-    req.query.artist_individual == "undefined" ? "" : req.query.artist_individual;
-
-  connection.query(`
+    req.query.artist_individual == "undefined"
+      ? ""
+      : req.query.artist_individual;
+  // aggregate on country and more
+  connection.query(
+    `
   WITH top_ten AS (
     SELECT country, COUNT(DISTINCT track_name) as top_tens
     FROM spotify_songs s JOIN spotify_ranks sr on s.uri = sr.uri
@@ -191,15 +239,70 @@ const chart_survivability = async function (req, res) {
     FROM top_ten tt JOIN weeks w ON tt.country = w.country
     WHERE tt.country <> 'Global'
     ORDER BY top_tens DESC, total_weeks DESC, avg_weeks DESC
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.sendStatus(500);
-    } else {
-      res.status(200).send(data);
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
     }
-  });
-}
+  );
+};
+
+/* 
+
+Create table with country1, country2, and similarity score
+similarity score is determined as such:
+  - if a song is in top10 for country 1 at the same time as country2, then 3 points (2 points initially and 1 point for same artist)
+  - if a song is in top10 for country 1 at a different time as country2 and no overlap, then 1 point
+  - if 50% of songs in country 1 have the same genre as country2 during the same week, then 1 point
+  - if the same artist has a song in top10 for both countries, then 1 point
+*/
+/* SUBOPTIMAL VERSION */
+const country_similarity = async function (req, res) {
+  connection.query(
+    `
+  WITH same_song_same_week AS (
+    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_song_same_week
+    FROM spotify_ranks r1 JOIN spotify_ranks r2 
+    ON r1.uri = r2.uri AND r1.country > r2.country AND r1.song_chart_week = r2.song_chart_week
+    GROUP BY r1.country, r2.country
+  ),
+  same_song_diff_week AS (
+    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_song_diff_week
+    FROM spotify_ranks r1 JOIN spotify_ranks r2
+    ON r1.uri = r2.uri AND r1.country > r2.country AND r1.song_chart_week NOT IN (
+      SELECT song_chart_week FROM spotify_ranks WHERE country = r2.country AND uri = r2.uri)
+    GROUP BY r1.country, r2.country
+  ),
+  artist_count AS (
+    (
+      SELECT COUNT(*) as same_artist
+      FROM (SELECT s1.artist_names AS artists_1, s1.uri AS uri_1, s2.artist_names AS artists_2, s2.uri AS uri_2
+        FROM spotify_songs s1 JOIN spotify_songs s2 ON s1.uri > s2.uri) song_pairs
+      WHERE (
+        SELECT artist_individual FROM spotify_artist WHERE s1.artist_names LIKE CONCAT('%', artist_individual, '%')) s1_artists
+      WHERE s1_artists.artist_individual IN (SELECT artist_individual FROM spotify_artist WHERE s2.artist_names LIKE CONCAT('%', artist_individual, '%')))
+    )
+  ,
+  same_artist AS (
+    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_artist
+    FROM spotify_songs s1 JOIN  
+    spotify_songs s2
+    ON s1.uri <> s2.uri AND ()
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    }
+  );
+};
 
 const test_connection = async function (req, res) {
   // checks the value of type the request parameters
