@@ -78,6 +78,252 @@ create table spotify_ranks
 
 **************************/
 
+// TODO: Create a function to convert a week in the format 'YYYY-MM-DD' to milliseconds
+/**
+ * QUERY 1:
+ * GET ROUTE - retrieves all songs that were created by a specified
+ *             number of artists
+ * @param req needs to contain:
+ * - num - number of artists
+ */
+const get_songs_by_num_artists = async function (req, res) {
+  const num_artists = req.query.num;
+
+  connection.query(
+    `
+    SELECT artist_names, track_name FROM spotify_songs WHERE artists_num = ${num_artists};
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * QUERY 2:
+ * GET ROUTE - retrieves the track information made
+ * @param req needs to contain:
+ * - name - the name of the track
+ */
+
+const get_track = async function (req, res) {
+  const track_name = req.query.name;
+
+  connection.query(
+    `
+    SELECT track_name, artist_names, album_cover, danceability, energy, song_key, valence, tempo, duration
+    FROM spotify_songs S
+    WHERE S.track_name = ${track_name};
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * QUERY 3:
+ * GET ROUTE - retrieves all songs in top 200 for one country
+ *             in one particular week, ordered by ranking
+ * @param req needs to contain:
+ * - country - the country queried
+ * - week - the week queried
+ */
+
+const get_top_songs = async function (req, res) {
+  const week = req.query.week;
+  const country = req.query.country;
+
+  connection.query(
+    `
+    SELECT track_name, artist_names, country, song_chart_week, song_chart_rank
+    FROM spotify_songs S JOIN spotify_ranks R ON S.uri = R.uri
+    WHERE R.country = ${country} AND R.song_chart_week = ${week}
+    ORDER BY song_chart_rank;
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * QUERY 4:
+ * GET ROUTE - retrieves top ten movies/shows for a particular
+ *             country in a category for one week
+ * @param req needs to contain:
+ * - country - the country queried
+ * - week - the week queried
+ * - category - the category queried
+ */
+const get_top_ten_media = async function (req, res) {
+  const week = req.query.week;
+  const country = req.query.country;
+  const category = req.query.category;
+
+  connection.query(
+    `
+    SELECT R.show_title, R.country, R.week, R.weekly_rank
+    FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
+    WHERE R.week = ${week} AND R.weekly_rank < 11 AND 
+          C.category = ${category} AND R.country = ${country}
+    ORDER BY weekly_rank;
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * QUERY 5:
+ * GET ROUTE - retrieves top {num} movies/shows for each week of a
+ *             given year in a given category
+ * @param req needs to contain:
+ * - year - the year queried
+ * - week - the category queried
+ * - num - the upper boundary of top media wwe want to retrieve (i.e. if we want top 5, num = 5)
+ */
+const get_yearly_top_media = async function (req, res) {
+  /* Maybe add a country condition? */
+  const year = req.query.year;
+  const category = req.query.category;
+  const num = req.query.num;
+
+  /* TODO: add a function to convert year to a range of weeks in milliseconds
+          E.g. input_year = 2022 -> start_week = 1641013200, end_week = 1672462800
+          so query: week >= start_week AND week <= end_week
+  */
+
+  // For now use 2022:
+  const start_week = 1641013200;
+  const end_week = 1672462800;
+
+  connection.query(
+    `
+    SELECT R.show_title, R.country, R.week
+    FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
+    WHERE R.week >= ${start_week} AND R.week <= ${end_week} AND 
+          C.category = ${category} AND R.weekly_rank < ${num + 1}
+    ORDER BY country;
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * QUERY 6:
+ * GET ROUTE - gets a country’s top media ranked within the given rank range for one week
+ * @param req needs to contain:
+ * - country - the country queried
+ * - week - the week queried
+ * - low - lower boundary for the ranks we want to retrieve
+ * - high - upper boundary for the rank we want to retrieve
+ */
+const get_media_rank_range = async function (req, res) {
+  const country = req.query.country;
+  const week = req.query.week;
+  const low = req.query.low;
+  const high = req.query.high;
+
+  connection.query(
+    `
+    SELECT R.show_title, R.country, R.week, R.weekly_rank, C.category
+    FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
+    WHERE R.week = ${week} AND R.weekly_rank >= ${low} AND 
+          R.weekly_rank <=  ${high} AND R.country = ${country}
+    ORDER BY category, weekly_rank; 
+      `,
+    (err, data) => {
+      if (err) {
+        // if there is an error for some reason, or if the query is empty (this should not be possible)
+        // print the error message and return an empty object instead
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        // JSONify the data and return
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
+/**
+ * GET ROUTE - retrieves any songs that meed the specified criteria
+ * @param req needs to contain:
+ * - date_start - the start date of the range of dates we want to search
+ * - date_end - the end date of the range of dates we want to search
+ * - country - the country we want to search
+ * - num_weeks - the number of weeks we want to search
+ * - dancemin - the minimum danceability score we want to search
+ * - dancemax - the maximum danceability score we want to search
+ * - energymin - the minimum energy score we want to search
+ * - energymax - the maximum energy score we want to search
+ * - valemin - the minimum valence score we want to search
+ * - valmax - the maximum valence score we want to search
+ * - tempomin - the minimum tempo score we want to search
+ * - tempomax - the maximum tempo score we want to search
+ * - durmin - the minimum duration score we want to search
+ * - durmax - the maximum duration score we want to search
+ * - release_date - the release date of the song we want to search
+ * - artist - the artist of the song we want to search
+ * - song - the song we want to search
+ * - album - the album of the song we want to search
+ */
 // Route 1:
 /* endpoint: /songs
 method: GET
@@ -120,7 +366,6 @@ song object:
 }
 status: 200 on success and 500 on error
 *********************/
-
 const search_songs = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
@@ -292,6 +537,78 @@ const country_similarity = async function (req, res) {
     FROM spotify_songs s1 JOIN  
     spotify_songs s2
     ON s1.uri <> s2.uri AND ()
+    `
+  );
+};
+/**
+ * GET ROUTE - retrieves artist rankings for a given week in a given country
+ * @param req needs to contain:
+ * - week - the week in which to get rankings from
+ * - country - the country to get rankings from
+ */
+const artist_rankings = async function (req, res) {
+  // checks the value of type the request parameters
+  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+  // we can also send back an HTTP status code to indicate an improper request
+  const week = req.query.week == "undefined" ? -1 : req.query.week;
+  const country = req.query.country == "undefined" ? -1 : req.query.country;
+
+  connection.query(
+    `
+  WITH power as(
+    SELECT uri, song_chart_week, country,
+           (200-peak_rank) + log(weeks_on_chart) +
+           CASE WHEN 0 < peak_rank-song_chart_rank THEN 0
+           ELSE peak_rank-song_chart_rank END
+               as pscore
+    FROM spotify_ranks
+    WHERE song_chart_week = ${week}$ and country = "${country}$"
+),
+songs_with_indiv_artist as(
+    SELECT artist_id, uri
+    FROM
+        spotify_artist
+        JOIN spotify_songs
+            on FIND_IN_SET(artist_individual, REPLACE(artist_names, ', ', ',' )) >0
+)
+SELECT artist_id, song_chart_week, country, SUM(pscore) as value
+FROM songs_with_indiv_artist JOIN power on power.uri = songs_with_indiv_artist.uri
+GROUP BY artist_id, song_chart_week, country;
+  `,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    }
+  );
+};
+
+/**
+ * GET ROUTE - retrieves show rankings for a given date range in a given country
+ * @param req needs to contain:
+ * - start - the week in which to get rankings from
+ * - end - the week in which to get rankings from
+ * - country - the country to get rankings from
+ */
+const netflix_rankings = async function (req, res) {
+  // checks the value of type the request parameters
+  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+  // we can also send back an HTTP status code to indicate an improper request
+  const start = req.query.start == "undefined" ? -1 : req.query.start;
+  const end = req.query.end == "undefined" ? -1 : req.query.end;
+  const country = req.query.country == "undefined" ? -1 : req.query.country;
+
+  connection.query(
+    `
+    SELECT show_title, max(cumulative_weeks) * avg(weekly_rank) + min(weekly_rank) as power
+    FROM netflix_ranks
+    where week >= ${start}$ and week <= ${end}$
+        and country = "${country}$"
+    GROUP BY show_title
+    ORDER BY power DESC;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -336,4 +653,74 @@ module.exports = {
   // author,
   search_songs,
   test_connection,
+  get_songs_by_num_artists,
+  get_track,
+  get_top_songs,
+  get_top_ten_media,
+  get_yearly_top_media,
+  get_media_rank_range,
+  artist_rankings,
+  netflix_rankings,
 };
+
+// COMMENTS
+
+// Route 1:
+// const author = async function (req, res) {
+//   // checks the value of type the request parameters
+//   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
+//   if (req.params.type === "name") {
+//     // res.send returns data back to the requester via an HTTP response
+//     res.send(`Created by ${name}`);
+//   } else if (null) {
+//     // TODO (TASK 2): edit the else if condition to check if the request parameter is 'pennkey' and if so, send back response 'Created by [pennkey]'
+//   } else {
+//     // we can also send back an HTTP status code to indicate an improper request
+//     res
+//       .status(400)
+//       .send(
+//         `'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`
+//       );
+//   }
+// };
+/* endpoint: /songs
+method: GET
+description: returns all songs in the database that match the query parameters
+query parameters:
+dancemin: minimum dancebility (0.0 - 1.0)
+dancemax: maximum dancebility (0.0 - 1.0)
+energymin: minimum energy (0.0 - 1.0)
+energymax: maximum energy (0.0 - 1.0)
+valmin: maximum valence (0.0 - 1.0)
+valmax: minimum valence (0.0 - 1.0)
+keymin: song key (0 - 11)
+keymax: song key (0 - 11)
+tempomin: minimum tempo (0.0 - 1.0)
+tempomax: maximum tempo (0.0 - 1.0)
+durmin: minimum duration (in seconds)
+durmax: maximum duration (in seconds)
+release_date: release date of song
+num_weeks: number of weeks on the billboard charts
+countries: countries of billboard charts or global
+date_start: start date of billboard charts
+date_end: end date of billboard charts
+artist: artist name
+album: album name
+song: song name
+returns: array of song objects
+song object:
+{
+  uri: song_link and unique identifier,
+  arist_names: names of artist - comma separated
+  album_name: name of album,
+  track_name: name of song,
+  release_date: release date of song,
+  danceability: danceability of song,
+  energy: energy of song,
+  song_key: key of song,
+  valence: valence of song,
+  tempo: tempo of song,
+  duration: duration of song,
+}
+status: 200 on success and 500 on error
+*/
