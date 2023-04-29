@@ -504,6 +504,7 @@ similarity score is determined as such:
   - if a song is in top10 for country 1 at a different time as country2 and no overlap, then 1 point
   - if 50% of songs in country 1 have the same genre as country2 during the same week, then 1 point
   - if the same artist has a song in top10 for both countries, then 1 point
+  - if movies ...
 */
 /* SUBOPTIMAL VERSION */
 const country_similarity = async function (req, res) {
