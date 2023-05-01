@@ -26,7 +26,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   // });
   // const fetchedShows = useData(`/shows/?${showParams}`);
 
-
   const movieParams = URLSearchParams({
     country: countryName,
     startWeek: startWeek || 0,
@@ -52,19 +51,18 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'song10',
   ]; */
 
-
-  // const shows = [
-  //   'show1',
-  //   'show2',
-  //   'show3',
-  //   'show4',
-  //   'show5',
-  //   'show6',
-  //   'show7',
-  //   'show8',
-  //   'show9',
-  //   'show10',
-  // ];
+  const shows = [
+    'show1',
+    'show2',
+    'show3',
+    'show4',
+    'show5',
+    'show6',
+    'show7',
+    'show8',
+    'show9',
+    'show10',
+  ];
 
   const movies = [
     'movie1',
@@ -88,8 +86,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   }
 
   const songs = fetchedSongs.data || [];
-
-
 
   return (
     <div

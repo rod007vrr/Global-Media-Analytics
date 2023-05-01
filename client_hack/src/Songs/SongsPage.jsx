@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 
 // Source: https://github.com/vasturiano/react-globe.gl
 // eslint-disable-next-line import/no-extraneous-dependencies
-import Globe from 'react-globe.gl';
 import {
   Typography,
   Button,
@@ -30,40 +29,27 @@ import ScreenGrid from '../components/ScreenGrid';
 import 'react-date-picker/dist/DatePicker.css';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-calendar/dist/Calendar.css';
-// import {
-//   ComposableMap,
-//   Geographies,
-//   Sphere,
-//   Geography,
-//   ZoomableGroup,
-// } from 'react-simple-maps';
 
 const config = require('../config.json');
 
 // Using MUI create a functional component which has a field where you can input a date range
 
-function DurationValueLabel(props) {
-  return <div>props.value</div>;
-}
+// function DurationValueLabel() {
+//   return <div>{value}</div>;
+// }
 
-function MapPage() {
+function SongPage() {
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [selectedSongId, setSelectedSongId] = useState(null);
 
   const [title, setTitle] = useState('');
+  const [artist, setArtist] = useState('');
   const [duration, setDuration] = useState([60, 660]);
-  const [plays, setPlays] = useState([0, 1100000000]);
+  const [tempo, setTempo] = useState([0, 1100000000]);
   const [danceability, setDanceability] = useState([0, 1]);
   const [energy, setEnergy] = useState([0, 1]);
   const [valence, setValence] = useState([0, 1]);
-
-  // ADDING hyperlink using the link to spotify songs
-  const navigate = useNavigate();
-  const routeChange = (newPath) => {
-    const path = `${newPath}`;
-    navigate(path);
-  };
 
   const columns = [
     { field: 'title', headerName: 'Title', width: 300 }, // track_name
@@ -77,6 +63,13 @@ function MapPage() {
     { field: 'album_cover', headerName: 'Album Cover' }, // album cover
     { field: 'link', headerName: 'Link' }, // uri
   ];
+
+  function formatDuration(ms) {
+    const sec = ms / 1000;
+    const date = new Date(0);
+    date.setSeconds(sec ?? 0);
+    return date.toISOString().substring(14, 19);
+  }
 
   /*
   FIELDS THAT ARE RETURNED: 
@@ -94,9 +87,23 @@ function MapPage() {
    */
   const search = () => {
     console.log(
-      `requested at http://${config.server_host}:${config.server_port}/songs`,
+      `requested at http://${config.server_host}:${config.server_port}/songs?title=${title}` +
+        `&durmin=${duration[0]}&durmax=${duration[1]}` +
+        `&dancemin=${danceability[0]}&dancemax=${danceability[1]}` +
+        `&energymin=${energy[0]}&energymaax=${energy[1]}` +
+        `&tempomin=${tempo[0]}&tempomax=${tempo[1]}` +
+        `&valmin=${valence[0]}&valmax=${valence[1]}`,
     );
-    fetch(`http://${config.server_host}:${config.server_port}/songs`)
+    fetch(
+      `http://${config.server_host}:${config.server_port}/songs?` +
+        `title=${title}` +
+        `&artist=${artist}` +
+        `&durmin=${duration[0] * 1000}&durmax=${duration[1] * 1000}` +
+        `&dancemin=${danceability[0]}&dancemax=${danceability[1]}` +
+        `&energymin=${energy[0]}&energymaax=${energy[1]}` +
+        `&tempomin=${tempo[0]}&tempomax=${tempo[1]}` +
+        `&valmin=${valence[0]}&valmax=${valence[1]}`,
+    )
       .then((res) => res.json())
       .then((resJson) => {
         // DataGrid expects an array of objects with a unique id.
@@ -106,7 +113,7 @@ function MapPage() {
           title: song.track_name,
           artists: song.artist_names,
           release_date: song.release_date,
-          duration: song.duration,
+          duration: formatDuration(song.duration),
           danceability: song.danceability,
           energy: song.energy,
           valence: song.valence,
@@ -121,13 +128,28 @@ function MapPage() {
 
   return (
     <Container>
-      <h2>Search Songs</h2>
+      <h2
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        Search Songs
+      </h2>
       <Grid container spacing={6}>
-        <Grid item xs={8}>
+        <Grid item xs={6}>
           <TextField
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            style={{ width: '100%' }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <TextField
+            label="Artist"
+            value={artist}
+            onChange={(e) => setArtist(e.target.value)}
             style={{ width: '100%' }}
           />
         </Grid>
@@ -140,11 +162,57 @@ function MapPage() {
             step={10}
             onChange={(e, newValue) => setDuration(newValue)}
             valueLabelDisplay="auto"
-            valueLabelFormat={DurationValueLabel}
+            // valueLabelFormat={DurationValueLabel}
           />
         </Grid>
-        {/* TODO (TASK 24): add sliders for danceability, energy, and valence (they should be all in the same row of the Grid) */}
-        {/* Hint: consider what value xs should be to make them fit on the same row. Set max, min, and a reasonable step. Is valueLabelFormat is necessary? */}
+        <Grid item xs={6}>
+          <p>Tempo (BPM)</p>
+          <Slider
+            value={tempo}
+            min={0}
+            max={250}
+            step={1}
+            onChange={(e, newValue) => setTempo(newValue)}
+            valueLabelDisplay="auto"
+            // valueLabelFormat={(value) => <div>{value}</div>}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <p>Danceability</p>
+          <Slider
+            value={danceability}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(e, newValue) => setDanceability(newValue)}
+            valueLabelDisplay="auto"
+            // valueLabelFormat={(value) => <div>{value}</div>}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <p>Energy</p>
+          <Slider
+            value={energy}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(e, newValue) => setEnergy(newValue)}
+            valueLabelDisplay="auto"
+            // valueLabelFormat={(value) => <div>{value}</div>}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <p>Valence</p>
+          <Slider
+            value={valence}
+            min={0}
+            max={1}
+            step={0.01}
+            onChange={(e, newValue) => setValence(newValue)}
+            valueLabelDisplay="auto"
+            // valueLabelFormat={(value) => <div>{value}</div>}
+          />
+        </Grid>
       </Grid>
       <Button
         onClick={() => search()}
@@ -167,4 +235,4 @@ function MapPage() {
   );
 }
 
-export default MapPage;
+export default SongPage;
