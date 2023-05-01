@@ -77,8 +77,13 @@ function MapPage() {
 
   return (
     <>
-      <Typography variant="h3" textAlign="center" gutterBottom>
-        Explore
+      <Typography
+        variant="h3"
+        textAlign="center"
+        style={{ margin: '50px 30px auto 10px' }}
+        gutterBottom
+      >
+        Explore Countries
       </Typography>
       <ScreenGrid>
         <Grid item>
@@ -86,13 +91,13 @@ function MapPage() {
             className="datepickers-flex-container"
             style={{
               display: 'flex',
-              margin: '10px',
+              margin: '10px 10px 30px 10px',
               justifyContent: 'center',
             }}
           >
             <div
               style={{
-                margin: '10px',
+                margin: '20px',
               }}
             >
               Start Date:{' '}
@@ -107,7 +112,7 @@ function MapPage() {
             </div>
             <div
               style={{
-                margin: '10px',
+                margin: '20px',
               }}
             >
               End Date:{' '}
@@ -123,6 +128,7 @@ function MapPage() {
           <div>
             <Globe
               // width={1000}
+              height={800}
               globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg"
               backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
               lineHoverPrecision={0}
@@ -149,25 +155,28 @@ function MapPage() {
             />
           </div>
         </Grid>
-        {clickD ? (
-          <div
-            style={{
-              position: 'absolute',
-              right: '25px',
-              top: '25%',
-              height: '50%',
-            }}
-          >
-            <CountryInfo
-              countryName={
-                clickD && clickD.properties ? clickD.properties.ADMIN : null
-              }
-              backFunction={() => setClickD(null)}
-              startWeek={startValue.getTime() / 1000}
-              endWeek={endValue.getTime() / 1000}
-            />
-          </div>
-        ) : null}
+        <Grid item>
+          {clickD ? (
+            <div
+              style={{
+                position: 'relative',
+                right: '25px',
+                top: '25%',
+                left: '-500px',
+                height: '50%',
+              }}
+            >
+              <CountryInfo
+                countryName={
+                  clickD && clickD.properties ? clickD.properties.ADMIN : null
+                }
+                backFunction={() => setClickD(null)}
+                startWeek={startValue.getTime() / 1000}
+                endWeek={endValue.getTime() / 1000}
+              />
+            </div>
+          ) : null}
+        </Grid>
       </ScreenGrid>
     </>
   );

@@ -6,18 +6,20 @@ import PrimaryButton from '../components/buttons/PrimaryButton';
 import NavBar from '../components/navbar';
 
 function HomePage() {
-  const message = `Welcome to Our Website!`;
+  const message = `Welcome to Worldwide Media!`;
   return (
     <ScreenGrid>
-      <Typography variant="h4">{message}</Typography>
-      <Typography variant="h6">
-        This website does xyz and blah blah blah. Make sure to checkout the map
-        to do blah - blah blah. if you want to search songs go to blah blah
-        blah. if you want to get some interesting insights on the data go visit
-        the blah blah blah page.
+      <Typography variant="h1" style={{ margin: '40px' }}>
+        {message}
       </Typography>
-      <Grid item container justifyContent="center">
-        <PrimaryButton>Click Me</PrimaryButton>
+      <Typography variant="h6" style={{ margin: '10px' }}>
+        This is a website of exploration - you can find statistics about media
+        all over the world. Click down below to get started...
+      </Typography>
+      <Grid item container justifyContent="center" style={{ margin: '10px' }}>
+        <PrimaryButton style={{ backgroundColor: '#1db954' }} href="/map">
+          Click Me
+        </PrimaryButton>
       </Grid>
     </ScreenGrid>
   );

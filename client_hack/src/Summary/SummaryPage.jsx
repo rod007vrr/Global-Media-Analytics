@@ -36,7 +36,11 @@ function CompareButton({ country1, country2, setSimilarity }) {
     return <LoadingButton />;
   }
   return (
-    <Button variant="contained" onClick={(_e) => handlePromote()}>
+    <Button
+      variant="contained"
+      onClick={(_e) => handlePromote()}
+      style={{ backgroundColor: '#1db954' }}
+    >
       Compare
     </Button>
   );
@@ -63,18 +67,19 @@ function SimilarityPage() {
   };
   return (
     <div>
-      <Typography variant="h3" textAlign="center" gutterBottom>
+      <Typography variant="h3" textAlign="center" gutterBottom margin="30px">
         Similarity
       </Typography>
-      <Typography variant="h5" textAlign="center" gutterBottom>
-        Blah Blah Blah
+      <Typography variant="h5" textAlign="center" gutterBottom margin="10px">
+        Pick two countries to compare their top charts:
       </Typography>
       <Grid
         container
         xs={12}
-        justifyContent="space-around "
+        justifyContent="space-around"
         // alignItems="center"
         flexDirection="row"
+        margin="30px"
       >
         <Grid item>
           <Box sx={{ width: 300 }}>
@@ -123,7 +128,7 @@ function SimilarityPage() {
         />
       </div>
       {similarity ? (
-        <Typography variant="h5" textAlign="center">
+        <Typography variant="h4" textAlign="center" margin="70px">
           Similarity Score: {similarity}
         </Typography>
       ) : null}
