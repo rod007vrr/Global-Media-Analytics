@@ -8,6 +8,7 @@ import theme from './assets/theme';
 import { store, persistor } from './util/redux/store';
 import NotFoundPage from './NotFound/NotFoundPage';
 import HomePage from './Home/HomePage';
+import SongsPage from './Songs/SongsPage';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage';
 import {
   UnauthenticatedRoutesWrapper,
@@ -72,6 +73,7 @@ function App() {
                   /> */}
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/songs" element={<SongsPage />} />
 
               {/* Route which is accessed if no other route is matched */}
               <Route path="*" element={<NotFoundPage />} />
