@@ -70,7 +70,7 @@ function App() {
                       <DynamicRedirect unAuthPath="/login" authPath="/home" />
                     }
                   /> */}
-              <Route path="/home" element={<HomePage />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
 
               {/* Route which is accessed if no other route is matched */}

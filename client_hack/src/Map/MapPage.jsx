@@ -169,6 +169,8 @@ function MapPage() {
                 clickD && clickD.properties ? clickD.properties.ADMIN : null
               }
               backFunction={() => setClickD(null)}
+              startWeek={startValue.getTime()}
+              endWeek={endValue.getTime()}
             />
           </div>
         ) : // <div style={{ height: ' 80%', width: '400px', paddingTop: '50px' }} />
