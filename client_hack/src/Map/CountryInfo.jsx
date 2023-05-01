@@ -1,14 +1,47 @@
 /* eslint-disable react/jsx-filename-extension */
 // Create a React Component with that takes in a country name and displays the following country's data as three columns: top 10 songs, top 10 netflix shows, top 10 netflix movies, assume this info is passed in a an array of strings a parameter to the component
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Typography, Button, Grid } from '@mui/material';
-import { Link } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
 import ScreenGrid from '../components/ScreenGrid';
+import useData from '../util/api';
 
 // sample data
 
-function CountryInfo() {
+function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
+  // TODO: double check category and endpoints here
+  // const songParams = URLSearchParams({
+  //   country: countryName,
+  //   startWeek: startWeek || 0,
+  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+  // });
+  // const songs = useData(`/songs/?${songParams}`);
+
+  // const showParams = URLSearchParams({
+  //   country: countryName,
+  //   startWeek: startWeek || 0,
+  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+  //   category: 'tv',
+  // });
+  // const shows = useData(`/shows/?${showParams}`);
+
+  // const movieParams = URLSearchParams({
+  //   country: countryName,
+  //   startWeek: startWeek || 0,
+  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+  //   category: 'movie',
+  // });
+
+  // const movies = useData(`/movies/?${movieParams}`);
+
+  // if (!songs || !shows || !movies) {
+  //   return (
+  //     <div style={{ width: '0', margin: 'auto' }}>
+  //       <CircularProgress size={80} />
+  //     </div>
+  //   );
+  // }
   const songs = [
     'song1',
     'song2',
@@ -49,8 +82,22 @@ function CountryInfo() {
   ];
 
   return (
-    <div style={{ height: ' 80%', width: '400px', paddingTop: '50px' }}>
-      <Typography variant="h6">Country Info</Typography>
+    <div
+      style={{
+        height: '100%',
+        width: '400px',
+        paddingTop: '25px',
+        paddingLeft: '12.5px',
+        paddingRight: '12.5px',
+        marginBottom: '25px',
+        backgroundColor: 'white',
+        borderRadius: '25px',
+      }}
+    >
+      <Button variant="contained" onClick={backFunction}>
+        Back
+      </Button>
+      <Typography variant="h6">{countryName}</Typography>
       <ScreenGrid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h7">Top 10 Songs</Typography>
