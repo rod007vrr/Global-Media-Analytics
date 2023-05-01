@@ -474,7 +474,7 @@ const chart_survivability = async function (req, res) {
         JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
         JOIN spotify_ranks sr ON s.uri = sr.uri
         JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
-    WHERE artist_individual = 'Ariana Grande' AND sr.peak_rank <= 10
+    WHERE artist_individual = '${artist}' AND sr.peak_rank <= 10
     GROUP BY country
     ORDER BY top_tens DESC) tt
     JOIN (SELECT *, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks,
@@ -483,7 +483,7 @@ const chart_survivability = async function (req, res) {
         JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
         JOIN spotify_ranks sr ON s.uri = sr.uri
         JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
-    WHERE sa.artist_individual = 'Ariana Grande'
+    WHERE sa.artist_individual = '${artist}'
     GROUP BY country
     ORDER BY total_weeks DESC) w ON tt.country = w.country
     ORDER BY avg_weeks DESC, top_tens DESC
