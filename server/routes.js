@@ -157,10 +157,11 @@ const get_top_songs = async function (req, res) {
   const country = req.query.country;
 
   connection.query(
-    `SELECT track_name, artist_names, country, song_chart_week, song_chart_rank
+    `SELECT Distinct track_name
     FROM spotify_songs S JOIN spotify_ranks R ON S.uri = R.uri
     WHERE R.country = "${country}" AND R.song_chart_week >= ${startWeek} AND R.song_chart_week <= ${endWeek}
-    ORDER BY song_chart_rank ASC LIMIT 10`,
+    ORDER BY song_chart_rank ASC
+    LIMIT 10`,
     (err, data) => {
       if (err) {
         console.log("err hit!");
@@ -189,17 +190,20 @@ const get_top_songs = async function (req, res) {
  * - category - the category queried
  */
 const get_top_ten_media = async function (req, res) {
-  const week = req.query.week;
+  const startWeek = req.query.startWeek;
+  const endWeek = req.query.endWeek;
   const country = req.query.country;
   const category = req.query.category;
 
   connection.query(
     `
-    SELECT R.show_title, R.country, R.week, R.weekly_rank
-    FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
-    WHERE R.week = ${week} AND R.weekly_rank < 11 AND 
-          C.category = ${category} AND R.country = ${country}
-    ORDER BY weekly_rank;
+    SELECT R.show_title, max(cumulative_weeks) * avg(weekly_rank) + min(weekly_rank) as power
+  FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
+  where week >= ${startWeek} and week <= ${endWeek}
+      and country = "${country}" and category = "${category}"
+  GROUP BY show_title
+  ORDER BY power DESC
+  LIMIT 10;
       `,
     (err, data) => {
       if (err) {
@@ -568,7 +572,15 @@ const country_similarity = async function (req, res) {
       SELECT (3 * same_week.num_shared_top_tens + 2 * same_song_different_week.num_shared_top_tens + artists_with_top_tens_shared.num) as score
       FROM same_song_same_week same_week, same_song_different_week, artists_with_top_tens_shared
     `
-  );
+  ),
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    };
 };
 /**
  * GET ROUTE - retrieves artist rankings for a given week in a given country
@@ -695,35 +707,59 @@ const movie_diff_country = async function (req, res) {
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
   const country = req.query.country == "undefined" ? -1 : req.query.country;
-
+  const startWeek = req.query.startWeek == "undefined" ? -1 : req.query.startWeek;
+  const endWeek = req.query.endWeek == "undefined" ? -1 : req.query.endWeek;
+  connection.query(`SET @audience_rank = 0;`);
   connection.query(
     `
-    SET @audience_rank = 0;
-WITH reviewedFilmsInGlobal AS (
-    SELECT title, audience_score, genre, week, weekly_rank
-    FROM netflix_ratings r JOIN netflix_ranks gr ON r.title = gr.show_title
-    WHERE audience_score > 0 and country = "Bahamas" and title in (select netflix_global_ranks.show_title as title
-                                                                   from netflix_global_ranks)
-    ORDER BY audience_score DESC
-),
-with_rank as (
-    SELECT title, @audience_rank := @audience_rank + 1 as audience_rank, audience_score, week, weekly_rank
-    FROM reviewedFilmsInGlobal
-),
-diff as (
-    select *, ABS(audience_rank-weekly_rank) as diff
-    from with_rank
-    )
-select week, avg(diff)/max(diff) as diff
-from diff
-group by week;
+WITH reviewedfilmsinglobal
+AS
+  (
+           SELECT   title,
+                    audience_score,
+                    genre,
+                    week,
+                    weekly_rank
+           FROM     netflix_ratings r
+           JOIN     netflix_ranks gr
+           ON       r.title = gr.show_title
+           WHERE    audience_score > 0
+           AND      country = "Bahamas"
+           AND      title IN
+                    (
+                           SELECT netflix_global_ranks.show_title AS title
+                           FROM   netflix_global_ranks
+                           WHERE  week>= 0
+                           AND    week <= 100000000000)
+           ORDER BY audience_score DESC ), with_rank
+AS
+  (
+         SELECT title,
+                @audience_rank := @audience_rank + 1 AS audience_rank,
+                audience_score,
+                week,
+                weekly_rank
+         FROM   reviewedfilmsinglobal ), diff
+AS
+  (
+         SELECT *,
+                abs(audience_rank-weekly_rank) AS diff
+         FROM   with_rank )
+  SELECT   week,
+           avg(diff)/max(diff) AS diff
+  FROM     diff
+  WHERE    week>= 0
+  AND      week <= 100000000000
+  GROUP BY week;
   `,
     (err, data) => {
       if (err || data.length === 0) {
         console.log(err);
         res.sendStatus(500);
       } else {
-        res.status(200).send(data);
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
       }
     }
   );

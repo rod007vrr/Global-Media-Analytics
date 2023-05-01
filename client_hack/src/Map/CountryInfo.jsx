@@ -7,14 +7,12 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ScreenGrid from '../components/ScreenGrid';
 import { useData } from '../util/api';
 
-// sample data
-
 function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
-  // TODO: double check category and endpoints here
+  // TODO: double check category and endpoints here\
   const songParams = new URLSearchParams({
     country: countryName,
-    startWeek: startWeek || 0,
-    endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
   });
   const fetchedSongs = useData(`top_songs?${songParams}`);
 
@@ -27,56 +25,15 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   // const fetchedShows = useData(`/shows/?${showParams}`);
 
   const movieParams = URLSearchParams({
+  const showParams = new URLSearchParams({
     country: countryName,
-    startWeek: startWeek || 0,
-    endWeek: endWeek || Number.MAX_SAFE_INTEGER,
-    category: 'movie',
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
+    category: 'TV',
   });
+  const fetchedShows = useData(`top_ten_media?${showParams}`);
 
-  // const fetchedMovies = useData(`/movies/?${movieParams}`);
-
-  const fetchedMovies = true;
-  const fetchedShows = true;
-
-  /* const songs = [
-    'song1',
-    'song2',
-    'song3',
-    'song4',
-    'song5',
-    'song6',
-    'song7',
-    'song8',
-    'song9',
-    'song10',
-  ]; */
-
-  const shows = [
-    'show1',
-    'show2',
-    'show3',
-    'show4',
-    'show5',
-    'show6',
-    'show7',
-    'show8',
-    'show9',
-    'show10',
-  ];
-
-  const movies = [
-    'movie1',
-    'movie2',
-    'movie3',
-    'movie4',
-    'movie5',
-    'movie6',
-    'movie7',
-    'movie8',
-    'movie9',
-    'movie10',
-  ];
-  if (!fetchedSongs || !fetchedShows || !fetchedMovies) {
+  if (!fetchedSongs || !fetchedShows || !fetchedMovies || !fetchedScore) {
     console.log('loading');
     return (
       <div style={{ width: '0', margin: 'auto' }}>
@@ -86,6 +43,8 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   }
 
   const songs = fetchedSongs.data || [];
+  const shows = fetchedShows.data || [];
+  const movies = fetchedMovies.data || [];
 
   return (
     <div
@@ -100,50 +59,65 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
         borderRadius: '25px',
       }}
     >
-      <Button variant="contained" onClick={backFunction}>
-        Back
-      </Button>
-      <Typography variant="h6">{countryName}</Typography>
-      <ScreenGrid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h7">Top 10 Songs</Typography>
-          {songs.map((song, i) => (
-            <div>
-              <Typography variant="h8">
-                {i + 1}. {song}
-              </Typography>
-              <br />
-            </div>
-          ))}
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h7">Top 10 Shows</Typography>
-          {shows.map((show, i) => (
-            <div>
-              <Typography variant="h8">
-                {i + 1}. {show}
-              </Typography>
-              <br />
-            </div>
-          ))}
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h7">Top 10 Movies</Typography>
-          {movies.map((movie, i) => (
-            <div>
-              <Typography variant="h8">
-                {i + 1}. {movie}
-              </Typography>
-              <br />
-            </div>
-          ))}
-        </Grid>
-        {/* <Grid item xs={12}>
-          <Button variant="contained" component={Link} to="/">
-            Back
-          </Button>
-        </Grid> */}
-      </ScreenGrid>
+      {' '}
+      <div
+        style={{
+          height: '85%',
+        }}
+      >
+        <Button variant="contained" onClick={backFunction}>
+          Back
+        </Button>
+        <br />
+        <br />
+        <Typography variant="h6" gutterBottom>
+          {countryName}
+        </Typography>
+        <ScreenGrid container spacing={2}>
+          <Grid item xs={12}>
+            <Typography variant="h7">Top 10 Songs</Typography>
+            {songs.map((song, i) => (
+              <div>
+                <Typography variant="h8">
+                  {i + 1}. {song.track_name}
+                </Typography>
+                <br />
+              </div>
+            ))}
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="h7">Top 10 Shows</Typography>
+            {shows.map((show, i) => (
+              <div>
+                <Typography variant="h8">
+                  {i + 1}. {show.show_title}
+                </Typography>
+                <br />
+              </div>
+            ))}
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="h7">Top 10 Movies</Typography>
+            {movies.map((movie, i) => (
+              <div>
+                <Typography variant="h8">
+                  {i + 1}. {movie.show_title}
+                </Typography>
+                <br />
+              </div>
+            ))}
+          </Grid>
+        </ScreenGrid>
+      </div>
+      <div style={{ textAlign: 'center' }}>
+        <Typography variant="h7" align="center" inline>
+          Mismatch Score:
+        </Typography>
+        <br />
+        <Typography variant="h7" align="center" inline>
+          {mismatchScore}
+        </Typography>
+      </div>
     </div>
   );
 }

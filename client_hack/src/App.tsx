@@ -27,10 +27,15 @@ import ResetPasswordPage from './Authentication/ResetPasswordPage';
 import AlertPopup from './components/AlertPopup';
 import InviteRegisterPage from './Authentication/InviteRegisterPage';
 
+import MapPage from './Map/MapPage';
+import SimilarityPage from './Summary/SummaryPage';
+import NavBar from './components/navbar';
+
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
+        <NavBar />
         {/* <Provider store={store}> */}
         {/* <PersistGate loading={null} persistor={persistor}> */}
         <ThemeProvider theme={theme}>
