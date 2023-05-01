@@ -3,6 +3,7 @@ import Button from '@mui/material/Button';
 import { Typography, Grid } from '@mui/material';
 import ScreenGrid from '../components/ScreenGrid';
 import PrimaryButton from '../components/buttons/PrimaryButton';
+import NavBar from '../components/navbar';
 
 function HomePage() {
   const message = `Welcome to Our Website!`;
