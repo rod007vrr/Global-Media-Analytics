@@ -377,27 +377,33 @@ const search_songs = async function (req, res) {
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
   const date_start =
-    req.query.date_start == undefined ? -1 : req.query.date_start;
-  const date_end = req.query.date_end == undefined ? -1 : req.query.date_end;
-  const country = req.query.country == undefined ? "undefined" : req.query.country;
-  const num_weeks = req.query.num_weeks == undefined ? -1 : req.query.num_weeks;
-  const dancemin = req.query.dancemin == undefined ? -1 : req.query.dancemin;
-  const dancemax = req.query.dancemax == undefined ? -1 : req.query.dancemax;
-  const energymin = req.query.energymin == undefined ? -1 : req.query.energymin;
-  const energymax = req.query.energymax == undefined ? -1 : req.query.energymax;
-  const valmin = req.query.valmin == undefined ? -1 : req.query.valmin;
-  const valmax = req.query.valmax == undefined ? -1 : req.query.valmax;
-  const tempomin = req.query.tempomin == undefined ? -1 : req.query.tempomin;
-  const tempomax = req.query.tempomax == undefined ? -1 : req.query.tempomax;
-  const durmin = req.query.durmin == undefined ? -1 : req.query.durmin;
-  const durmax = req.query.durmax == undefined ? -1 : req.query.durmax;
+    req.query.date_start == "undefined" ? -1 : req.query.date_start;
+  const date_end = req.query.date_end == "undefined" ? -1 : req.query.date_end;
+  const country = req.query.country == "undefined" ? -1 : req.query.country;
+  const num_weeks =
+    req.query.num_weeks == "undefined" ? -1 : req.query.num_weeks;
+  const dancemin = req.query.dancemin == "undefined" ? -1 : req.query.dancemin;
+  const dancemax = req.query.dancemax == "undefined" ? -1 : req.query.dancemax;
+  const energymin =
+    req.query.energymin == "undefined" ? -1 : req.query.energymin;
+  const energymax =
+    req.query.energymax == "undefined" ? -1 : req.query.energymax;
+  const valmin = req.query.valmin == "undefined" ? -1 : req.query.valmin;
+  const valmax = req.query.valmax == "undefined" ? -1 : req.query.valmax;
+  const keymin = req.query.keymin == "undefined" ? -1 : req.query.keymin;
+  const keymax = req.query.keymax == "undefined" ? -1 : req.query.keymax;
+  const tempomin = req.query.tempomin == "undefined" ? -1 : req.query.tempomin;
+  const tempomax = req.query.tempomax == "undefined" ? -1 : req.query.tempomax;
+  const durmin = req.query.durmin == "undefined" ? -1 : req.query.durmin;
+  const durmax = req.query.durmax == "undefined" ? -1 : req.query.durmax;
   const release_date =
     req.query.release_date == "undefined"
-      ? undefined
+      ? "undefined"
       : req.query.release_date;
   const artist =
-    req.query.artist == undefined ? "undefined" : req.query.artist;
-  const song = req.query.title == undefined ? "undefined" : req.query.title;
+    req.query.artist == "undefined" ? "undefined" : req.query.artist;
+  const album = req.query.album == "undefined" ? "undefined" : req.query.album;
+  const song = req.query.song == "undefined" ? "undefined" : req.query.song;
 
   connection.query(
     `
@@ -406,27 +412,29 @@ const search_songs = async function (req, res) {
       FROM spotify_ranks
       WHERE (${date_start} = -1 OR song_chart_week >= ${date_start})
       AND (${date_end} = -1 OR song_chart_week <= ${date_end})
-      AND ('${country}' = 'undefined' OR '${country}' = 'Global' OR country = '${country}')
+      AND ("${country}" = "undefined" OR "${country}" = 'Global' OR country IN (${country}))
       GROUP BY uri
       HAVING (${num_weeks} = -1 OR COUNT(*) >= ${num_weeks})
     )
-    SELECT ROW_NUMBER() OVER (ORDER BY artist_names) as id, s.uri, artist_names, track_name, release_date, 
-            album_cover, danceability, energy, valence, tempo, duration
+    SELECT *
     FROM spotify_songs s
     JOIN numWeeks r ON s.uri = r.uri
-    WHERE (${dancemin} = -1 OR s.danceability >= ${dancemin})
-    AND (${dancemax}= -1 OR s.danceability <= ${dancemax})
+    WHERE (${dancemin}= -1 OR s.danceability >= ${dancemin})
+    AND (${dancemax}= -1" OR s.danceability <= ${dancemax})
     AND (${energymin}= -1 OR s.energy >= ${energymin})
     AND (${energymax}= -1 OR s.energy <= ${energymax})
     AND (${valmin}= -1 OR s.valence >= ${valmin})
     AND (${valmax}= -1 OR s.valence <= ${valmax})
+    AND (${keymin}= -1 OR s.song_key >= ${key_min})
+    AND (${keymax}= -1 OR s.song_key <= ${key_max})
     AND (${tempomin}= -1 OR s.tempo >= ${tempomin})
     AND (${tempomax}= -1 OR s.tempo <= ${tempomax})
     AND (${durmin}= -1 OR s.duration >= ${durmin})
     AND (${durmax}= -1 OR s.duration <= ${durmax})
-    AND ('${release_date}' = 'undefined' OR s.release_date = '${release_date}')
-    AND ('${artist}' = 'undefined' OR s.artist_names LIKE '%${artist}%')
-    AND ('${song}' = 'undefined' OR s.track_name LIKE '%${song}%')
+    AND (${release_date}= -1 OR s.release_date = ${release_date})
+    AND "(${artist}" = "undefined" OR s.artist_names LIKE '%${artist}%')
+    AND "(${album}" = "undefined" OR s.album_name LIKE '%${album}%')
+    AND "(${song}" = "undefined" OR s.track_name LIKE '%${song}%')
       `,
     (err, data) => {
       if (err) {
@@ -436,42 +444,13 @@ const search_songs = async function (req, res) {
         // res.json({});
         res.sendStatus(500);
       } else {
-        console.log("QUERY: \n" + `
-        WITH numWeeks AS (
-          SELECT uri, COUNT(*) AS num_weeks
-          FROM spotify_ranks
-          WHERE (${date_start} = -1 OR song_chart_week >= ${date_start})
-          AND (${date_end} = -1 OR song_chart_week <= ${date_end})
-          AND ('${country}' = 'undefined' OR '${country}' = 'Global' OR country = '${country}')
-          GROUP BY uri
-          HAVING (${num_weeks} = -1 OR COUNT(*) >= ${num_weeks})
-        )
-        SELECT ROW_NUMBER() OVER (ORDER BY artist_names) as id, s.uri, artist_names, track_name, release_date, 
-                album_cover, danceability, energy, valence, tempo, duration
-        FROM spotify_songs s
-        JOIN numWeeks r ON s.uri = r.uri
-        WHERE (${dancemin} = -1 OR s.danceability >= ${dancemin})
-        AND (${dancemax}= -1 OR s.danceability <= ${dancemax})
-        AND (${energymin}= -1 OR s.energy >= ${energymin})
-        AND (${energymax}= -1 OR s.energy <= ${energymax})
-        AND (${valmin}= -1 OR s.valence >= ${valmin})
-        AND (${valmax}= -1 OR s.valence <= ${valmax})
-        AND (${tempomin}= -1 OR s.tempo >= ${tempomin})
-        AND (${tempomax}= -1 OR s.tempo <= ${tempomax})
-        AND (${durmin}= -1 OR s.duration >= ${durmin})
-        AND (${durmax}= -1 OR s.duration <= ${durmax})
-        AND ('${release_date}' = 'undefined' OR s.release_date = '${release_date}')
-        AND ('${artist}' = 'undefined' OR s.artist_names LIKE '%${artist}%')
-        AND ('${song}' = 'undefined' OR s.track_name LIKE '%${song}%')
-          `)
         // Here, we return results of the query as an object, keeping only relevant data
         // being song_id and title which you will add. In this case, there is only one song
         // so we just directly access the first element of the query results array (data)
         // TODO (TASK 3): also return the song title in the response
         const parsed_data = JSON.parse(JSON.stringify(data));
-        res.status(200).send(parsed_data);
-
         console.log(parsed_data);
+        res.status(200).send(parsed_data);
 
         // res.JSON(data);
       }
@@ -497,8 +476,7 @@ const chart_survivability = async function (req, res) {
       : req.query.artist_individual;
   connection.query(
     `
-    SELECT ROW_NUMBER() OVER (ORDER BY avg_weeks DESC, top_tens DESC) as id, 
-    tt.country, top_tens, total_weeks, avg_weeks, avg_danceability
+    SELECT tt.country, top_tens, total_weeks, avg_weeks, avg_danceability
     FROM (SELECT country, COUNT(DISTINCT s.uri) as top_tens
     FROM spotify_songs s
         JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
@@ -516,6 +494,7 @@ const chart_survivability = async function (req, res) {
     WHERE sa.artist_individual = '${artist}'
     GROUP BY country
     ORDER BY total_weeks DESC) w ON tt.country = w.country
+    ORDER BY avg_weeks DESC, top_tens DESC
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -765,38 +744,6 @@ AS
   );
 };
 
-const get_songs_charted_by_artist = async function (req, res) {
-  // checks the value of type the request parameters
-  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
-  // we can also send back an HTTP status code to indicate an improper request
-  const artist = req.query.artist == undefined ? "undefined" : req.query.artist;
-  // TODO: need to add to this query to only return the week for which the song topped
-  // the highest place
-  connection.query(
-    `
-    WITH songsByArtist AS (
-      SELECT track_name, release_date, uri
-      FROM (spotify_songs S JOIN spotify_multiple sm on S.artist_names = sm.artist_names)
-              JOIN spotify_artist sa ON sm.artist_id = sa.artist_id
-      WHERE sa.artist_individual = '${artist}'
-      )
-      SELECT DISTINCT ROW_NUMBER() OVER (ORDER BY country, peak_rank) as id,
-            track_name, release_date, peak_rank, country
-      FROM spotify_ranks sr JOIN songsByArtist sa on sr.uri = sa.uri
-      GROUP BY (track_name);
-      
-  `,
-    (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.sendStatus(500);
-      } else {
-        res.status(200).send(data);
-      }
-    }
-  );
-};
-
 const test_connection = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
@@ -841,7 +788,6 @@ module.exports = {
   chart_survivability,
   country_similarity,
   movie_diff_country,
-  get_songs_charted_by_artist
 };
 
 // COMMENTS

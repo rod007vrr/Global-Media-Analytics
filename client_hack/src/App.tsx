@@ -8,10 +8,6 @@ import theme from './assets/theme';
 import { store, persistor } from './util/redux/store';
 import NotFoundPage from './NotFound/NotFoundPage';
 import HomePage from './Home/HomePage';
-import SongsPage from './Songs/SongsPage';
-import MapPage from './Map/MapPage';
-import ArtistsPage from './Artists/ArtistsPage';
-import SimilarityPage from './Summary/SummaryPage';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage';
 import {
   UnauthenticatedRoutesWrapper,
@@ -26,7 +22,6 @@ import EmailResetPasswordPage from './Authentication/EmailResetPasswordPage';
 import ResetPasswordPage from './Authentication/ResetPasswordPage';
 import AlertPopup from './components/AlertPopup';
 import InviteRegisterPage from './Authentication/InviteRegisterPage';
-
 import MapPage from './Map/MapPage';
 import SimilarityPage from './Summary/SummaryPage';
 import NavBar from './components/navbar';
@@ -81,8 +76,6 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
               <Route path="/similarity" element={<SimilarityPage />} />
-              <Route path="/songs" element={<SongsPage />} />
-              <Route path="/artists" element={<ArtistsPage />} />
 
               {/* Route which is accessed if no other route is matched */}
               <Route path="*" element={<NotFoundPage />} />
