@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// So cookies can be sent automatically with requests
-axios.defaults.withCredentials = true;
-
 interface ResolvedReq {
   data: any | null;
   error: Error | any | null;
@@ -28,6 +25,7 @@ async function resolve(promise: Promise<any>) {
     const err: Error | any = e;
     if (err.response) {
       // Handles populating error with data from an error thrown by the server
+      resolved.error = err;
       resolved.error = err.response;
       resolved.error.message = err.response.data.message;
     } else {
@@ -66,12 +64,15 @@ const useData = (url: string) => {
     const fetchData = async () => {
       const res = await getData(url);
       setData(res);
+      console.log('output');
+      console.log(res);
     };
 
     fetchData();
     // getData(url).then((res) => setData(res.data));
   }, [url]);
-
+  console.log('data');
+  console.log(data);
   return data;
 };
 

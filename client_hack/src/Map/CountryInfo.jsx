@@ -16,9 +16,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     startWeek: startWeek || 0,
     endWeek: endWeek || Number.MAX_SAFE_INTEGER,
   });
-  console.log('bruh');
-  const songs = useData(`/top_songs?${songParams}`);
-  console.log(songs);
+  const fetchedSongs = useData(`top_songs?${songParams}`);
 
   // const showParams = URLSearchParams({
   //   country: countryName,
@@ -26,7 +24,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
   //   category: 'tv',
   // });
-  // const shows = useData(`/shows/?${showParams}`);
+  // const fetchedShows = useData(`/shows/?${showParams}`);
 
   // const movieParams = URLSearchParams({
   //   country: countryName,
@@ -35,7 +33,10 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   //   category: 'movie',
   // });
 
-  // const movies = useData(`/movies/?${movieParams}`);
+  // const fetchedMovies = useData(`/movies/?${movieParams}`);
+
+  const fetchedMovies = true;
+  const fetchedShows = true;
 
   /* const songs = [
     'song1',
@@ -75,13 +76,21 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'movie9',
     'movie10',
   ];
-  if (!songs || !shows || !movies) {
+  if (!fetchedSongs || !fetchedShows || !fetchedMovies) {
+    console.log('loading');
     return (
       <div style={{ width: '0', margin: 'auto' }}>
         <CircularProgress size={80} />
       </div>
     );
   }
+
+  console.log(`fetchedSongs: ${JSON.stringify(fetchedSongs)}`);
+  // eslint-disable-next-line no-prototype-builtins
+
+  const songs = fetchedSongs.data || [1];
+
+  console.log(`songs: ${songs}`);
 
   return (
     <div

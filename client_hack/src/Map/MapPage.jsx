@@ -52,7 +52,7 @@ function MapPage() {
   ];
 
   function isCountryWithData(country) {
-    return true;
+    return countriesWithData.includes(country);
   }
 
   // Hover Function
@@ -73,7 +73,6 @@ function MapPage() {
   // Handle click
   function clickFunction(currPoly) {
     if (currPoly && isCountryWithData(currPoly.properties.ADMIN)) {
-      alert(`${currPoly.properties.ADMIN}`);
       setClickD(currPoly);
     }
   }
