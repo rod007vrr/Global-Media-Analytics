@@ -8,6 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
 import ScreenGrid from '../components/ScreenGrid';
+import { getData } from '../util/api';
 
 // information that needs to be shown on the summary page:
 // 1. Survivability Score
@@ -15,29 +16,38 @@ import ScreenGrid from '../components/ScreenGrid';
 // 3. Artist Rankings (top 10)
 // 4. Chart Mismatch Score
 
-function CompareButton({ compareSimilariy, country1, country2 }) {
+function CompareButton({ country1, country2, setSimilarity }) {
   const [isLoading, setLoading] = useState(false);
 
   async function handlePromote() {
+    if (country1 === '' || country2 === '') {
+      return;
+    }
     setLoading(true);
-    await compareSimilariy(country1, country2);
+    // TODO: replace route with actual route will have to add country1 and country 2 as queries like in MapPage
+    const res = { data: 0.5 };
+    // const res = await getData(`route${country1}/${country2}`);
+    // TODO: sense check if res.data is the right input here
+    setSimilarity(res.data);
+    console.log('here');
     setLoading(false);
   }
   if (isLoading) {
     return <LoadingButton />;
   }
   return (
-    <Button variant="contained" onClick={(e) => handlePromote}>
+    <Button variant="contained" onClick={(_e) => handlePromote()}>
       Compare
     </Button>
   );
 }
 
-function SummaryPage() {
-  // To Do - replace with call to database
-  const [country1, setCountry1] = React.useState(null);
-  const [country2, setCountry2] = React.useState(null);
+function SimilarityPage() {
+  const [country1, setCountry1] = React.useState('');
+  const [country2, setCountry2] = React.useState('');
+  const [similarity, setSimilarity] = useState(null);
 
+  // To Do - replace with call to database
   const countries = [
     'United States of America',
     'Canada',
@@ -54,7 +64,7 @@ function SummaryPage() {
   return (
     <div>
       <Typography variant="h3" textAlign="center" gutterBottom>
-        Summary
+        Similarity
       </Typography>
       <Typography variant="h5" textAlign="center" gutterBottom>
         Blah Blah Blah
@@ -106,10 +116,19 @@ function SummaryPage() {
         </Grid>
       </Grid>
       <div style={{ margin: 'auto', width: '6%' }}>
-        <CompareButton country1={country1} country2={country2} />
+        <CompareButton
+          country1={country1}
+          country2={country2}
+          setSimilarity={setSimilarity}
+        />
       </div>
+      {similarity ? (
+        <Typography variant="h5" textAlign="center">
+          Similarity Score: {similarity}
+        </Typography>
+      ) : null}
     </div>
   );
 }
 
-export default SummaryPage;
+export default SimilarityPage;
