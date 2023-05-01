@@ -547,7 +547,15 @@ const country_similarity = async function (req, res) {
       SELECT (3 * same_week.num_shared_top_tens + 2 * same_song_different_week.num_shared_top_tens + artists_with_top_tens_shared.num) as score
       FROM same_song_same_week same_week, same_song_different_week, artists_with_top_tens_shared
     `
-  );
+  ),
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    };
 };
 /**
  * GET ROUTE - retrieves artist rankings for a given week in a given country
