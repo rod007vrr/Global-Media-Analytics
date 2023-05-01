@@ -466,24 +466,27 @@ const chart_survivability = async function (req, res) {
     req.query.artist_individual == "undefined"
       ? ""
       : req.query.artist_individual;
-  // aggregate on country and more
   connection.query(
     `
-  WITH top_ten AS (
-    SELECT country, COUNT(DISTINCT track_name) as top_tens
-    FROM spotify_songs s JOIN spotify_ranks sr on s.uri = sr.uri
-    WHERE s.artist_names LIKE '%${artist}%' AND sr.peak_rank <= 10
+    SELECT tt.country, top_tens, total_weeks, avg_weeks, avg_danceability
+    FROM (SELECT *, COUNT(DISTINCT s.uri) as top_tens
+    FROM spotify_songs s
+        JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
+        JOIN spotify_ranks sr ON s.uri = sr.uri
+        JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
+    WHERE artist_individual = 'Ariana Grande' AND sr.peak_rank <= 10
     GROUP BY country
-    ORDER BY top_tens
-    ), weeks AS (
-    SELECT country, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks
-    FROM spotify_songs s JOIN spotify_ranks r ON s.uri = r.uri
-    WHERE s.artist_names LIKE '%${artist}%'
+    ORDER BY top_tens DESC) tt
+    JOIN (SELECT *, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks,
+                                            AVG(danceability) as avg_danceability
+    FROM spotify_songs s
+        JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
+        JOIN spotify_ranks sr ON s.uri = sr.uri
+        JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
+    WHERE sa.artist_individual = 'Ariana Grande'
     GROUP BY country
-    ) SELECT tt.country, top_tens, total_weeks, avg_weeks
-    FROM top_ten tt JOIN weeks w ON tt.country = w.country
-    WHERE tt.country <> 'Global'
-    ORDER BY top_tens DESC, total_weeks DESC, avg_weeks DESC
+    ORDER BY total_weeks DESC) w ON tt.country = w.country
+    ORDER BY avg_weeks DESC, top_tens DESC
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -497,47 +500,48 @@ const chart_survivability = async function (req, res) {
 };
 
 /* 
-
-Create table with country1, country2, and similarity score
-similarity score is determined as such:
-  - if a song is in top10 for country 1 at the same time as country2, then 3 points (2 points initially and 1 point for same artist)
-  - if a song is in top10 for country 1 at a different time as country2 and no overlap, then 1 point
-  - if 50% of songs in country 1 have the same genre as country2 during the same week, then 1 point
-  - if the same artist has a song in top10 for both countries, then 1 point
-  - if movies ...
+method: GET
+description: for two given countries, we determine a total "similarity score" calculates as follows:
+- if a song is in the top 10 for both countries at the same time, they get 3 points for that song
+- if a song is in the top 10 for both countries at different times, they get 2 points for that song
+- if an artist has at least one song in the top 10 for both countries, they get 1 point for that artist
+query parameters:
+  country1: name of the first country
+  country2: name of the second country
+returns: an integer corresponding exactly to the similarity score. The closer to 1000 the value is the more similar country's music taste is
+status: 200 on success and 500 on error
 */
-/* SUBOPTIMAL VERSION */
 const country_similarity = async function (req, res) {
+  const country1 = req.query.country2 == "undefined" ? "": req.query.country1;
+  const country2 = req.query.country2 == "undefined" ? "": req.query.country2;
+
   connection.query(
     `
-  WITH same_song_same_week AS (
-    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_song_same_week
-    FROM spotify_ranks r1 JOIN spotify_ranks r2 
-    ON r1.uri = r2.uri AND r1.country > r2.country AND r1.song_chart_week = r2.song_chart_week
-    GROUP BY r1.country, r2.country
-  ),
-  same_song_diff_week AS (
-    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_song_diff_week
-    FROM spotify_ranks r1 JOIN spotify_ranks r2
-    ON r1.uri = r2.uri AND r1.country > r2.country AND r1.song_chart_week NOT IN (
-      SELECT song_chart_week FROM spotify_ranks WHERE country = r2.country AND uri = r2.uri)
-    GROUP BY r1.country, r2.country
-  ),
-  artist_count AS (
-    (
-      SELECT COUNT(*) as same_artist
-      FROM (SELECT s1.artist_names AS artists_1, s1.uri AS uri_1, s2.artist_names AS artists_2, s2.uri AS uri_2
-        FROM spotify_songs s1 JOIN spotify_songs s2 ON s1.uri > s2.uri) song_pairs
-      WHERE (
-        SELECT artist_individual FROM spotify_artist WHERE s1.artist_names LIKE CONCAT('%', artist_individual, '%')) s1_artists
-      WHERE s1_artists.artist_individual IN (SELECT artist_individual FROM spotify_artist WHERE s2.artist_names LIKE CONCAT('%', artist_individual, '%')))
-    )
-  ,
-  same_artist AS (
-    SELECT s1.country as country1, s2.country as country2, COUNT(*) as same_artist
-    FROM spotify_songs s1 JOIN  
-    spotify_songs s2
-    ON s1.uri <> s2.uri AND ()
+    WITH same_song_same_week AS (
+      SELECT sr1.country as country1, sr2.country as country2, COUNT(DISTINCT sr1.uri) as num_shared_top_tens
+      FROM spotify_ranks sr1 JOIN spotify_ranks sr2 ON sr1.song_chart_week = sr2.song_chart_week AND sr1.uri = sr2.uri
+      WHERE sr1.country = '${country1}' AND sr2.country = '${country2}' AND sr1.song_chart_rank <= 10 AND sr2.song_chart_rank <= 10
+      GROUP BY country1, country2
+  ), same_song_different_week AS (
+      SELECT sr1.country as country1, sr2.country as country2, COUNT(DISTINCT sr1.uri) as num_shared_top_tens
+      FROM spotify_ranks sr1 JOIN spotify_ranks sr2 ON sr1.song_chart_week <> sr2.song_chart_week AND sr1.uri = sr2.uri
+      WHERE sr1.country = '${country1}' AND sr2.country = '${country2}' AND sr1.song_chart_rank <= 10 AND sr2.song_chart_rank <= 10
+      GROUP BY country1, country2
+  ), artists_with_top_tens_shared AS (
+      SELECT COUNT(*) as num
+      FROM (SELECT artist_individual
+      FROM spotify_ranks sr JOIN spotify_songs s on sr.uri = s.uri JOIN spotify_multiple sm ON sm.artist_names = s.artist_names
+          JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
+      WHERE sr.peak_rank <= 10 AND sr.country = '${country1}'
+      GROUP BY artist_individual) c1
+      WHERE artist_individual IN (SELECT artist_individual
+          FROM spotify_ranks sr JOIN spotify_songs s on sr.uri = s.uri JOIN spotify_multiple sm ON sm.artist_names = s.artist_names
+      JOIN spotify_artist sa ON sa.artist_id = sm.artist_id
+      WHERE sr.peak_rank <= 10 AND sr.country = '${country2}'
+      GROUP BY artist_individual)
+  )
+      SELECT (3 * same_week.num_shared_top_tens + 2 * same_song_different_week.num_shared_top_tens + artists_with_top_tens_shared.num) as score
+      FROM same_song_same_week same_week, same_song_different_week, artists_with_top_tens_shared
     `
   );
 };
