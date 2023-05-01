@@ -11,8 +11,13 @@ import React, { useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Globe from 'react-globe.gl';
 import { Typography, Button, Grid } from '@mui/material';
+// import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import ScreenGrid from '../components/ScreenGrid';
 import CountryInfo from './CountryInfo';
+
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
 
 import geoPath from './topography.json';
 
@@ -112,6 +117,8 @@ function MapPage2() {
 function MapPage() {
   const [hoverD, setHoverD] = useState();
   const countries = geoData;
+  const [startValue, startOnChange] = useState(new Date());
+  const [endValue, endOnChange] = useState(new Date());
 
   // const colorScale = d3.scaleSequentialSqrt(d3.interpolateYlOrRd);
 
@@ -130,6 +137,24 @@ function MapPage() {
       <Typography variant="h3">Map</Typography>
       <ScreenGrid>
         <Grid item>
+        <div class="datepickers-flex-container" 
+          style={{
+            display: "flex",
+            margin: "10px",
+            justifyContent: "center"
+          }}
+        >
+          <div style={{
+            margin: "10px"
+          }}>
+            <DatePicker class="start-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} name={"Start Date"} onChange={startOnChange} value={startValue} />
+          </div>
+          <div style={{
+            margin: "10px"
+          }}>
+            <DatePicker class="end-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} onChange={endOnChange} value={endValue} />
+          </div>
+        </div>
           <div>
             <Globe
               width="80%"
