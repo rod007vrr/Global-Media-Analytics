@@ -105,7 +105,7 @@ function ArtistsPage() {
           top: '0',
           left: '0',
           width: '100%',
-          margin: '30px auto 30px auto',
+          margin: '30px auto auto auto',
           backgroundColor: '#191414',
           color: 'white',
           display: 'flex',
