@@ -469,7 +469,7 @@ const chart_survivability = async function (req, res) {
   connection.query(
     `
     SELECT tt.country, top_tens, total_weeks, avg_weeks, avg_danceability
-    FROM (SELECT *, COUNT(DISTINCT s.uri) as top_tens
+    FROM (SELECT country, COUNT(DISTINCT s.uri) as top_tens
     FROM spotify_songs s
         JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
         JOIN spotify_ranks sr ON s.uri = sr.uri
@@ -477,7 +477,7 @@ const chart_survivability = async function (req, res) {
     WHERE artist_individual = '${artist}' AND sr.peak_rank <= 10
     GROUP BY country
     ORDER BY top_tens DESC) tt
-    JOIN (SELECT *, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks,
+    JOIN (SELECT country, SUM(weeks_on_chart) as total_weeks, AVG(weeks_on_chart) as avg_weeks,
                                             AVG(danceability) as avg_danceability
     FROM spotify_songs s
         JOIN spotify_multiple sm ON s.artist_names = sm.artist_names
