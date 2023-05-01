@@ -635,6 +635,27 @@ const netflix_rankings = async function (req, res) {
   );
 };
 
+/**
+ * GET ROUTE - retrieves list of countries in db
+ */
+const countries_in_database = async function (req, res) {
+  connection.query(
+    `SELECT country
+    FROM netflix_ranks
+    UNION
+    SELECT country
+    FROM spotify_ranks;`,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        res.status(200).send(data);
+      }
+    }
+  );
+};
+
 const test_connection = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
@@ -675,6 +696,9 @@ module.exports = {
   get_media_rank_range,
   artist_rankings,
   netflix_rankings,
+  countries_in_database,
+  chart_survivability,
+  country_similarity,
 };
 
 // COMMENTS
