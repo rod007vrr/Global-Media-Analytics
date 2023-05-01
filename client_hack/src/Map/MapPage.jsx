@@ -1,12 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState } from 'react';
-// import {
-//   ComposableMap,
-//   Geographies,
-//   Sphere,
-//   Geography,
-//   ZoomableGroup,
-// } from 'react-simple-maps';
 
 // Source: https://github.com/vasturiano/react-globe.gl
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -73,7 +66,7 @@ function MapPage() {
   // Handle click
   function clickFunction(currPoly) {
     if (currPoly && isCountryWithData(currPoly.properties.ADMIN)) {
-      alert(`${currPoly.properties.ADMIN}`);
+      // alert(`${currPoly.properties.ADMIN}`);
       setClickD(currPoly);
     }
   }
@@ -103,6 +96,7 @@ function MapPage() {
                 margin: '10px',
               }}
             >
+              Start Date:{' '}
               <DatePicker
                 class="start-datepicker"
                 minDate={new Date('2021-02-04')}
@@ -117,6 +111,7 @@ function MapPage() {
                 margin: '10px',
               }}
             >
+              End Date:{' '}
               <DatePicker
                 class="end-datepicker"
                 minDate={new Date('2021-02-04')}
