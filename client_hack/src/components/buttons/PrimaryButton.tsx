@@ -16,7 +16,7 @@ const PrimaryButton = styled(Button)<ButtonProps>(({ theme }) => ({
   transition: 'box-shadow 0.2s ease 0s',
   textAlign: 'center',
   fontWeight: 'bold',
-  background: COLORS.primaryBlue,
+  background: '#1db954',
 }));
 
 export default PrimaryButton;
