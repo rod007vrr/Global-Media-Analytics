@@ -16,6 +16,15 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   });
   const fetchedSongs = useData(`top_songs?${songParams}`);
 
+  // const showParams = URLSearchParams({
+  //   country: countryName,
+  //   startWeek: startWeek || 0,
+  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+  //   category: 'tv',
+  // });
+  // const fetchedShows = useData(`/shows/?${showParams}`);
+
+  const movieParams = URLSearchParams({
   const showParams = new URLSearchParams({
     country: countryName,
     startWeek: startWeek - 14400 || 0,
@@ -23,21 +32,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     category: 'TV',
   });
   const fetchedShows = useData(`top_ten_media?${showParams}`);
-
-  const movieParams = new URLSearchParams({
-    country: countryName,
-    startWeek: startWeek - 14400 || 0,
-    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
-    category: 'Films',
-  });
-  const fetchedMovies = useData(`top_ten_media?${movieParams}`);
-
-  const scoreParams = new URLSearchParams({
-    country: countryName,
-    startWeek: startWeek - 14400 || 0,
-    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
-  });
-  const fetchedScore = useData(`movie_diff_country?${scoreParams}`);
 
   if (!fetchedSongs || !fetchedShows || !fetchedMovies || !fetchedScore) {
     console.log('loading');
@@ -51,11 +45,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   const songs = fetchedSongs.data || [];
   const shows = fetchedShows.data || [];
   const movies = fetchedMovies.data || [];
-
-  const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
-  const avg = sum / fetchedScore.data.length;
-
-  const mismatchScore = avg;
 
   return (
     <div
