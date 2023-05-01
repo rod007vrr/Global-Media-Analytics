@@ -24,6 +24,7 @@ import ResetPasswordPage from './Authentication/ResetPasswordPage';
 import AlertPopup from './components/AlertPopup';
 import InviteRegisterPage from './Authentication/InviteRegisterPage';
 import MapPage from './Map/MapPage';
+import SimilarityPage from './Summary/SummaryPage';
 
 function App() {
   return (
@@ -73,6 +74,7 @@ function App() {
                   /> */}
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/similarity" element={<SimilarityPage />} />
               <Route path="/songs" element={<SongsPage />} />
 
               {/* Route which is accessed if no other route is matched */}

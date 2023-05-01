@@ -1,12 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState } from 'react';
-// import {
-//   ComposableMap,
-//   Geographies,
-//   Sphere,
-//   Geography,
-//   ZoomableGroup,
-// } from 'react-simple-maps';
 
 // Source: https://github.com/vasturiano/react-globe.gl
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -39,7 +32,7 @@ function MapPage() {
 
   // For each country, determine if we have data on it or not
 
-  // TODO: replace with call to database
+  // TODO: replace with call to database - use the datahook
   const countriesWithData = [
     'United States of America',
     'Canada',
@@ -48,7 +41,7 @@ function MapPage() {
     'Mexico',
     'France',
     'Spain',
-    ' United Kingdom',
+    'United Kingdom',
   ];
 
   function isCountryWithData(country) {
@@ -73,7 +66,6 @@ function MapPage() {
   // Handle click
   function clickFunction(currPoly) {
     if (currPoly && isCountryWithData(currPoly.properties.ADMIN)) {
-      alert(`${currPoly.properties.ADMIN}`);
       setClickD(currPoly);
     }
   }
@@ -103,6 +95,7 @@ function MapPage() {
                 margin: '10px',
               }}
             >
+              Start Date:{' '}
               <DatePicker
                 class="start-datepicker"
                 minDate={new Date('2021-02-04')}
@@ -117,6 +110,7 @@ function MapPage() {
                 margin: '10px',
               }}
             >
+              End Date:{' '}
               <DatePicker
                 class="end-datepicker"
                 minDate={new Date('2021-02-04')}
