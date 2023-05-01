@@ -8,28 +8,29 @@ import ScreenGrid from '../components/ScreenGrid';
 import { useData } from '../util/api';
 
 function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
-  // TODO: double check category and endpoints here
+  // TODO: double check category and endpoints here\
   const songParams = new URLSearchParams({
     country: countryName,
-    startWeek: startWeek || 0,
-    endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
   });
   const fetchedSongs = useData(`top_songs?${songParams}`);
 
-  // const showParams = URLSearchParams({
-  //   country: countryName,
-  //   startWeek: startWeek || 0,
-  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
-  //   category: 'tv',
-  // });
-  // const fetchedShows = useData(`/shows/?${showParams}`);
+  const showParams = new URLSearchParams({
+    country: countryName,
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
+    category: 'TV',
+  });
+  const fetchedShows = useData(`top_ten_media?${showParams}`);
 
-  // const movieParams = URLSearchParams({
-  //   country: countryName,
-  //   startWeek: startWeek || 0,
-  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
-  //   category: 'movie',
-  // });
+  const movieParams = new URLSearchParams({
+    country: countryName,
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
+    category: 'Films',
+  });
+  const fetchedMovies = useData(`top_ten_media?${movieParams}`);
 
   // const fetchedMovies = useData(`/movies/?${movieParams}`);
 
@@ -37,9 +38,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   // const mismatchScoreParams = new URLSearchParams({
   // });
   // const fetchedScore = useData(`REPLACE?${mismatchScoreParams}`);
-
-  const fetchedMovies = true;
-  const fetchedShows = true;
   const fetchedScore = true;
 
   /* const songs = [
@@ -55,20 +53,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'song10',
   ]; */
 
-  const shows = [
-    'show1',
-    'show2',
-    'show3',
-    'show4',
-    'show5',
-    'show6',
-    'show7',
-    'show8',
-    'show9',
-    'show10',
-  ];
-
-  const movies = [
+  /* const movies = [
     'movie1',
     'movie2',
     'movie3',
@@ -79,7 +64,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'movie8',
     'movie9',
     'movie10',
-  ];
+  ]; */
   const mismatchScore = 5;
 
   if (!fetchedSongs || !fetchedShows || !fetchedMovies || !fetchedScore) {
@@ -92,6 +77,8 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   }
 
   const songs = fetchedSongs.data || [];
+  const shows = fetchedShows.data || [];
+  const movies = fetchedMovies.data || [];
 
   return (
     <div
@@ -126,7 +113,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
             {songs.map((song, i) => (
               <div>
                 <Typography variant="h8">
-                  {i + 1}. {song}
+                  {i + 1}. {song.track_name}
                 </Typography>
                 <br />
               </div>
@@ -137,7 +124,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
             {shows.map((show, i) => (
               <div>
                 <Typography variant="h8">
-                  {i + 1}. {show}
+                  {i + 1}. {show.show_title}
                 </Typography>
                 <br />
               </div>
@@ -148,7 +135,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
             {movies.map((movie, i) => (
               <div>
                 <Typography variant="h8">
-                  {i + 1}. {movie}
+                  {i + 1}. {movie.show_title}
                 </Typography>
                 <br />
               </div>

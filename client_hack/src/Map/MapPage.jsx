@@ -163,12 +163,11 @@ function MapPage() {
                 clickD && clickD.properties ? clickD.properties.ADMIN : null
               }
               backFunction={() => setClickD(null)}
-              startWeek={startValue.getTime()}
-              endWeek={endValue.getTime()}
+              startWeek={startValue.getTime() / 1000}
+              endWeek={endValue.getTime() / 1000}
             />
           </div>
-        ) : // <div style={{ height: ' 80%', width: '400px', paddingTop: '50px' }} />
-        null}
+        ) : null}
       </ScreenGrid>
     </>
   );

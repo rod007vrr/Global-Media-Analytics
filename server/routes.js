@@ -157,10 +157,11 @@ const get_top_songs = async function (req, res) {
   const country = req.query.country;
 
   connection.query(
-    `SELECT track_name, artist_names, country, song_chart_week, song_chart_rank
+    `SELECT Distinct track_name
     FROM spotify_songs S JOIN spotify_ranks R ON S.uri = R.uri
     WHERE R.country = "${country}" AND R.song_chart_week >= ${startWeek} AND R.song_chart_week <= ${endWeek}
-    ORDER BY song_chart_rank ASC LIMIT 10`,
+    ORDER BY song_chart_rank ASC
+    LIMIT 10`,
     (err, data) => {
       if (err) {
         console.log("err hit!");
@@ -189,17 +190,20 @@ const get_top_songs = async function (req, res) {
  * - category - the category queried
  */
 const get_top_ten_media = async function (req, res) {
-  const week = req.query.week;
+  const startWeek = req.query.startWeek;
+  const endWeek = req.query.endWeek;
   const country = req.query.country;
   const category = req.query.category;
 
   connection.query(
     `
-    SELECT R.show_title, R.country, R.week, R.weekly_rank
-    FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
-    WHERE R.week = ${week} AND R.weekly_rank < 11 AND 
-          C.category = ${category} AND R.country = ${country}
-    ORDER BY weekly_rank;
+    SELECT R.show_title, max(cumulative_weeks) * avg(weekly_rank) + min(weekly_rank) as power
+  FROM netflix_ranks R JOIN netflix_category C ON R.show_title = C.show_title
+  where week >= ${startWeek} and week <= ${endWeek}
+      and country = "${country}" and category = "${category}"
+  GROUP BY show_title
+  ORDER BY power DESC
+  LIMIT 10;
       `,
     (err, data) => {
       if (err) {
