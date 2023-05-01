@@ -551,30 +551,42 @@ const artist_rankings = async function (req, res) {
   // checks the value of type the request parameters
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
-  const week = req.query.week == "undefined" ? -1 : req.query.week;
+  const weekmin = req.query.week == "undefined" ? -1 : req.query.weekmin;
+  const weekmax = req.query.week == "undefined" ? -1 : req.query.weekmax;
   const country = req.query.country == "undefined" ? -1 : req.query.country;
 
   connection.query(
     `
-  WITH power as(
-    SELECT uri, song_chart_week, country,
-           (200-peak_rank) + log(weeks_on_chart) +
-           CASE WHEN 0 < peak_rank-song_chart_rank THEN 0
-           ELSE peak_rank-song_chart_rank END
-               as pscore
-    FROM spotify_ranks
-    WHERE song_chart_week = ${week}$ and country = "${country}$"
-),
-songs_with_indiv_artist as(
-    SELECT artist_id, uri
-    FROM
-        spotify_artist
-        JOIN spotify_songs
-            on FIND_IN_SET(artist_individual, REPLACE(artist_names, ', ', ',' )) >0
-)
-SELECT artist_id, song_chart_week, country, SUM(pscore) as value
-FROM songs_with_indiv_artist JOIN power on power.uri = songs_with_indiv_artist.uri
-GROUP BY artist_id, song_chart_week, country;
+    SELECT artist_individual,
+    song_chart_week,
+    country,
+    Sum(pscore) AS value
+FROM   (SELECT artist_individual,
+            uri
+     FROM   spotify_songs ss
+            JOIN (SELECT artist_names,
+                         artist_individual
+                  FROM   spotify_multiple
+                         JOIN spotify_artist sa
+                           ON sa.artist_id = spotify_multiple.artist_id) sm
+              ON ss.artist_names = sm.artist_names) songs_with_indiv_artist
+    JOIN (SELECT uri,
+                 song_chart_week,
+                 country,
+                 ( 200 - peak_rank ) + Log(weeks_on_chart) +
+                 CASE
+                   WHEN 0 <
+                 peak_rank - song_chart_rank THEN 0
+                   ELSE peak_rank - song_chart_rank
+                 END AS pscore
+          FROM   spotify_ranks
+          WHERE  song_chart_week >= ${weekmin}$
+                 AND song_chart_week <= ${weekmax}$
+                 AND country = "${country}$") power
+      ON power.uri = songs_with_indiv_artist.uri
+GROUP  BY artist_individual,
+       song_chart_week,
+       country;
   `,
     (err, data) => {
       if (err || data.length === 0) {
