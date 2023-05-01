@@ -15,6 +15,12 @@ import { Typography, Grid } from '@mui/material';
 import ScreenGrid from '../components/ScreenGrid';
 import CountryInfo from './CountryInfo';
 
+import DatePicker from 'react-date-picker';
+import 'react-date-picker/dist/DatePicker.css';
+import 'react-calendar/dist/Calendar.css';
+
+import geoPath from './topography.json';
+
 import geoData from './geoData.json';
 
 // Using MUI create a functional component which has a field where you can input a date range
@@ -25,6 +31,8 @@ function MapPage() {
   const [clickD, setClickD] = useState();
 
   const countries = geoData;
+  const [startValue, startOnChange] = useState(new Date());
+  const [endValue, endOnChange] = useState(new Date());
 
   // For each country, determine if we have data on it or not
 
@@ -79,6 +87,24 @@ function MapPage() {
       </Typography>
       <ScreenGrid>
         <Grid item>
+        <div class="datepickers-flex-container" 
+          style={{
+            display: "flex",
+            margin: "10px",
+            justifyContent: "center"
+          }}
+        >
+          <div style={{
+            margin: "10px"
+          }}>
+            <DatePicker class="start-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} name={"Start Date"} onChange={startOnChange} value={startValue} />
+          </div>
+          <div style={{
+            margin: "10px"
+          }}>
+            <DatePicker class="end-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} onChange={endOnChange} value={endValue} />
+          </div>
+        </div>
           <div>
             <Globe
               // width={1000}
