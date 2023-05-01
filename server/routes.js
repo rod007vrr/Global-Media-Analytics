@@ -678,35 +678,59 @@ const movie_diff_country = async function (req, res) {
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
   const country = req.query.country == "undefined" ? -1 : req.query.country;
-
+  const startWeek = req.query.startWeek == "undefined" ? -1 : req.query.startWeek;
+  const endWeek = req.query.endWeek == "undefined" ? -1 : req.query.endWeek;
+  connection.query(`SET @audience_rank = 0;`);
   connection.query(
     `
-    SET @audience_rank = 0;
-WITH reviewedFilmsInGlobal AS (
-    SELECT title, audience_score, genre, week, weekly_rank
-    FROM netflix_ratings r JOIN netflix_ranks gr ON r.title = gr.show_title
-    WHERE audience_score > 0 and country = "Bahamas" and title in (select netflix_global_ranks.show_title as title
-                                                                   from netflix_global_ranks)
-    ORDER BY audience_score DESC
-),
-with_rank as (
-    SELECT title, @audience_rank := @audience_rank + 1 as audience_rank, audience_score, week, weekly_rank
-    FROM reviewedFilmsInGlobal
-),
-diff as (
-    select *, ABS(audience_rank-weekly_rank) as diff
-    from with_rank
-    )
-select week, avg(diff)/max(diff) as diff
-from diff
-group by week;
+WITH reviewedfilmsinglobal
+AS
+  (
+           SELECT   title,
+                    audience_score,
+                    genre,
+                    week,
+                    weekly_rank
+           FROM     netflix_ratings r
+           JOIN     netflix_ranks gr
+           ON       r.title = gr.show_title
+           WHERE    audience_score > 0
+           AND      country = "Bahamas"
+           AND      title IN
+                    (
+                           SELECT netflix_global_ranks.show_title AS title
+                           FROM   netflix_global_ranks
+                           WHERE  week>= 0
+                           AND    week <= 100000000000)
+           ORDER BY audience_score DESC ), with_rank
+AS
+  (
+         SELECT title,
+                @audience_rank := @audience_rank + 1 AS audience_rank,
+                audience_score,
+                week,
+                weekly_rank
+         FROM   reviewedfilmsinglobal ), diff
+AS
+  (
+         SELECT *,
+                abs(audience_rank-weekly_rank) AS diff
+         FROM   with_rank )
+  SELECT   week,
+           avg(diff)/max(diff) AS diff
+  FROM     diff
+  WHERE    week>= 0
+  AND      week <= 100000000000
+  GROUP BY week;
   `,
     (err, data) => {
       if (err || data.length === 0) {
         console.log(err);
         res.sendStatus(500);
       } else {
-        res.status(200).send(data);
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
       }
     }
   );

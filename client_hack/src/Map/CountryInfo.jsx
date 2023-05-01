@@ -32,40 +32,12 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   });
   const fetchedMovies = useData(`top_ten_media?${movieParams}`);
 
-  // const fetchedMovies = useData(`/movies/?${movieParams}`);
-
-  // TODO: Replace with actual Bekz query on ROTTEN TOMATOES
-  // const mismatchScoreParams = new URLSearchParams({
-  // });
-  // const fetchedScore = useData(`REPLACE?${mismatchScoreParams}`);
-  const fetchedScore = true;
-
-  /* const songs = [
-    'song1',
-    'song2',
-    'song3',
-    'song4',
-    'song5',
-    'song6',
-    'song7',
-    'song8',
-    'song9',
-    'song10',
-  ]; */
-
-  /* const movies = [
-    'movie1',
-    'movie2',
-    'movie3',
-    'movie4',
-    'movie5',
-    'movie6',
-    'movie7',
-    'movie8',
-    'movie9',
-    'movie10',
-  ]; */
-  const mismatchScore = 5;
+  const scoreParams = new URLSearchParams({
+    country: countryName,
+    startWeek: startWeek - 14400 || 0,
+    endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
+  });
+  const fetchedScore = useData(`movie_diff_country?${scoreParams}`);
 
   if (!fetchedSongs || !fetchedShows || !fetchedMovies || !fetchedScore) {
     console.log('loading');
@@ -79,6 +51,11 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   const songs = fetchedSongs.data || [];
   const shows = fetchedShows.data || [];
   const movies = fetchedMovies.data || [];
+
+  const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
+  const avg = sum / fetchedScore.data.length;
+
+  const mismatchScore = avg;
 
   return (
     <div
