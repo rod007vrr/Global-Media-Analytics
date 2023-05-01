@@ -12,11 +12,14 @@ import React, { useState } from 'react';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import Globe from 'react-globe.gl';
 import { Typography, Grid } from '@mui/material';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import DatePicker from 'react-date-picker';
 import ScreenGrid from '../components/ScreenGrid';
 import CountryInfo from './CountryInfo';
 
-import DatePicker from 'react-date-picker';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-date-picker/dist/DatePicker.css';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-calendar/dist/Calendar.css';
 
 import geoPath from './topography.json';
@@ -87,24 +90,42 @@ function MapPage() {
       </Typography>
       <ScreenGrid>
         <Grid item>
-        <div class="datepickers-flex-container" 
-          style={{
-            display: "flex",
-            margin: "10px",
-            justifyContent: "center"
-          }}
-        >
-          <div style={{
-            margin: "10px"
-          }}>
-            <DatePicker class="start-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} name={"Start Date"} onChange={startOnChange} value={startValue} />
+          <div
+            className="datepickers-flex-container"
+            style={{
+              display: 'flex',
+              margin: '10px',
+              justifyContent: 'center',
+            }}
+          >
+            <div
+              style={{
+                margin: '10px',
+              }}
+            >
+              <DatePicker
+                class="start-datepicker"
+                minDate={new Date('2021-02-04')}
+                maxDate={new Date('2022-07-14')}
+                name="Start Date"
+                onChange={startOnChange}
+                value={startValue}
+              />
+            </div>
+            <div
+              style={{
+                margin: '10px',
+              }}
+            >
+              <DatePicker
+                class="end-datepicker"
+                minDate={new Date('2021-02-04')}
+                maxDate={new Date('2022-07-14')}
+                onChange={endOnChange}
+                value={endValue}
+              />
+            </div>
           </div>
-          <div style={{
-            margin: "10px"
-          }}>
-            <DatePicker class="end-datepicker" minDate={new Date("2021-02-04")} maxDate={new Date("2022-07-14")} onChange={endOnChange} value={endValue} />
-          </div>
-        </div>
           <div>
             <Globe
               // width={1000}

@@ -39,6 +39,7 @@
     "@mui/system": "^5.5.2",
     "@mui/x-date-pickers": "^6.3.0",
     "@reduxjs/toolkit": "^1.8.1",
+    "@types/react-datepicker": "^4.11.2",
     "@types/react-simple-maps": "^3.0.0",
     "axios": "^1.1.2",
     "prop-types": "^15.8.1",

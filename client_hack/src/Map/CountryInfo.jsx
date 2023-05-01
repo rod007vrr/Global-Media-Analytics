@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Typography, Button, Grid } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import ScreenGrid from '../components/ScreenGrid';
-import useData from '../util/api';
+import { useData } from '../util/api';
 
 // sample data
 
