@@ -445,6 +445,8 @@ const search_songs = async function (req, res) {
         const parsed_data = JSON.parse(JSON.stringify(data));
         console.log(parsed_data);
         res.status(200).send(parsed_data);
+         
+        // res.JSON(data);
       }
     }
   );
@@ -685,7 +687,7 @@ diff as (
     select *, ABS(audience_rank-weekly_rank) as diff
     from with_rank
     )
-select week, avg(diff)
+select week, avg(diff)/max(diff) as diff
 from diff
 group by week;
   `,

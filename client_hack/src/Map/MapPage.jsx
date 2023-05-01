@@ -39,7 +39,7 @@ function MapPage() {
 
   // For each country, determine if we have data on it or not
 
-  // TODO: replace with call to database
+  // TODO: replace with call to database - use the datahook
   const countriesWithData = [
     'United States of America',
     'Canada',
@@ -48,11 +48,11 @@ function MapPage() {
     'Mexico',
     'France',
     'Spain',
-    ' United Kingdom',
+    'United Kingdom',
   ];
 
   function isCountryWithData(country) {
-    return countriesWithData.includes(country);
+    return true;
   }
 
   // Hover Function

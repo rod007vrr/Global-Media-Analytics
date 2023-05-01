@@ -11,12 +11,14 @@ import { useData } from '../util/api';
 
 function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   // TODO: double check category and endpoints here
-  // const songParams = URLSearchParams({
-  //   country: countryName,
-  //   startWeek: startWeek || 0,
-  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
-  // });
-  // const songs = useData(`/songs/?${songParams}`);
+  const songParams = new URLSearchParams({
+    country: countryName,
+    startWeek: startWeek || 0,
+    endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+  });
+  console.log('bruh');
+  const songs = useData(`/top_songs?${songParams}`);
+  console.log(songs);
 
   // const showParams = URLSearchParams({
   //   country: countryName,
@@ -35,14 +37,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
 
   // const movies = useData(`/movies/?${movieParams}`);
 
-  // if (!songs || !shows || !movies) {
-  //   return (
-  //     <div style={{ width: '0', margin: 'auto' }}>
-  //       <CircularProgress size={80} />
-  //     </div>
-  //   );
-  // }
-  const songs = [
+  /* const songs = [
     'song1',
     'song2',
     'song3',
@@ -53,7 +48,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'song8',
     'song9',
     'song10',
-  ];
+  ]; */
 
   const shows = [
     'show1',
@@ -80,6 +75,13 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'movie9',
     'movie10',
   ];
+  if (!songs || !shows || !movies) {
+    return (
+      <div style={{ width: '0', margin: 'auto' }}>
+        <CircularProgress size={80} />
+      </div>
+    );
+  }
 
   return (
     <div
