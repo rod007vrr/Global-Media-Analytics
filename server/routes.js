@@ -544,7 +544,8 @@ const country_similarity = async function (req, res) {
 /**
  * GET ROUTE - retrieves artist rankings for a given week in a given country
  * @param req needs to contain:
- * - week - the week in which to get rankings from
+ * - week - the end range of the weeks to get from
+ * - weekmin - the start range of the weeks to get from
  * - country - the country to get rankings from
  */
 const artist_rankings = async function (req, res) {
