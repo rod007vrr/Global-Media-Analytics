@@ -26,12 +26,13 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   // });
   // const fetchedShows = useData(`/shows/?${showParams}`);
 
-  // const movieParams = URLSearchParams({
-  //   country: countryName,
-  //   startWeek: startWeek || 0,
-  //   endWeek: endWeek || Number.MAX_SAFE_INTEGER,
-  //   category: 'movie',
-  // });
+
+  const movieParams = URLSearchParams({
+    country: countryName,
+    startWeek: startWeek || 0,
+    endWeek: endWeek || Number.MAX_SAFE_INTEGER,
+    category: 'movie',
+  });
 
   // const fetchedMovies = useData(`/movies/?${movieParams}`);
 
@@ -51,18 +52,19 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     'song10',
   ]; */
 
-  const shows = [
-    'show1',
-    'show2',
-    'show3',
-    'show4',
-    'show5',
-    'show6',
-    'show7',
-    'show8',
-    'show9',
-    'show10',
-  ];
+
+  // const shows = [
+  //   'show1',
+  //   'show2',
+  //   'show3',
+  //   'show4',
+  //   'show5',
+  //   'show6',
+  //   'show7',
+  //   'show8',
+  //   'show9',
+  //   'show10',
+  // ];
 
   const movies = [
     'movie1',
@@ -85,12 +87,9 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     );
   }
 
-  console.log(`fetchedSongs: ${JSON.stringify(fetchedSongs)}`);
-  // eslint-disable-next-line no-prototype-builtins
+  const songs = fetchedSongs.data || [];
 
-  const songs = fetchedSongs.data || [1];
 
-  console.log(`songs: ${songs}`);
 
   return (
     <div
