@@ -151,23 +151,25 @@ const get_track = async function (req, res) {
  */
 
 const get_top_songs = async function (req, res) {
-  const week = req.query.week;
+  console.log("endpoint hit!");
+  const startWeek = req.query.startWeek || 0;
+  const endWeek = req.query.endWeek || Numbers.MAX_SAFE_INTEGER;
   const country = req.query.country;
 
   connection.query(
-    `
-    SELECT track_name, artist_names, country, song_chart_week, song_chart_rank
+    `SELECT track_name, artist_names, country, song_chart_week, song_chart_rank
     FROM spotify_songs S JOIN spotify_ranks R ON S.uri = R.uri
-    WHERE R.country = ${country} AND R.song_chart_week = ${week}
-    ORDER BY song_chart_rank;
-      `,
+    WHERE R.country = "${country}" AND R.song_chart_week >= ${startWeek} AND R.song_chart_week <= ${endWeek}
+    ORDER BY song_chart_rank ASC LIMIT 10`,
     (err, data) => {
       if (err) {
+        console.log("err hit!");
         // if there is an error for some reason, or if the query is empty (this should not be possible)
         // print the error message and return an empty object instead
         console.log(err);
         res.sendStatus(500);
       } else {
+        console.log("no error hit!");
         // JSONify the data and return
         const parsed_data = JSON.parse(JSON.stringify(data));
         console.log(parsed_data);
@@ -445,6 +447,8 @@ const search_songs = async function (req, res) {
         const parsed_data = JSON.parse(JSON.stringify(data));
         console.log(parsed_data);
         res.status(200).send(parsed_data);
+
+        // res.JSON(data);
       }
     }
   );
@@ -689,7 +693,7 @@ diff as (
     select *, ABS(audience_rank-weekly_rank) as diff
     from with_rank
     )
-select week, avg(diff)
+select week, avg(diff)/max(diff) as diff
 from diff
 group by week;
   `,
