@@ -23,6 +23,7 @@ import ResetPasswordPage from './Authentication/ResetPasswordPage';
 import AlertPopup from './components/AlertPopup';
 import InviteRegisterPage from './Authentication/InviteRegisterPage';
 import MapPage from './Map/MapPage';
+import SummaryPage from './Summary/SummaryPage';
 
 function App() {
   return (
@@ -72,6 +73,7 @@ function App() {
                   /> */}
               <Route path="/" element={<HomePage />} />
               <Route path="/map" element={<MapPage />} />
+              <Route path="/summary" element={<SummaryPage />} />
 
               {/* Route which is accessed if no other route is matched */}
               <Route path="*" element={<NotFoundPage />} />
