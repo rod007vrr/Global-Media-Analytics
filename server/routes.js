@@ -679,7 +679,7 @@ WITH reviewedFilmsInGlobal AS (
 ),
 with_rank as (
     SELECT title, @audience_rank := @audience_rank + 1 as audience_rank, audience_score, week, weekly_rank
-    FROM reviewedFilms
+    FROM reviewedFilmsInGlobal
 ),
 diff as (
     select *, ABS(audience_rank-weekly_rank) as diff
@@ -743,6 +743,7 @@ module.exports = {
   countries_in_database,
   chart_survivability,
   country_similarity,
+  movie_diff_country,
 };
 
 // COMMENTS
