@@ -39,7 +39,7 @@ export default function NavBar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <NavText href="/" text="Worldwide Media" isMain />
-          <NavText href="/home" text="Home" />
+          <NavText href="/" text="Home" />
           <NavText href="/map" text="Map" />
           <NavText href="/similarity" text="Similarity" />
           <NavText href="/songs" text="Songs" />

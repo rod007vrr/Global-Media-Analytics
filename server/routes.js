@@ -599,8 +599,8 @@ const artist_rankings = async function (req, res) {
   const country = req.query.country == "undefined" ? -1 : req.query.country;
 
   connection.query(
-    `
-    SELECT artist_individual,
+    `SELECT * FROM
+    (SELECT DISTINCT artist_individual,
     song_chart_week,
     country,
     Sum(pscore) AS value
@@ -623,13 +623,14 @@ FROM   (SELECT artist_individual,
                    ELSE peak_rank - song_chart_rank
                  END AS pscore
           FROM   spotify_ranks
-          WHERE  song_chart_week >= ${weekmin}$
-                 AND song_chart_week <= ${weekmax}$
-                 AND country = "${country}$") power
+          WHERE  song_chart_week >= ${weekmin}
+                 AND song_chart_week <= ${weekmax}
+                 AND country = "${country}") power
       ON power.uri = songs_with_indiv_artist.uri
 GROUP  BY artist_individual,
        song_chart_week,
-       country;
+       country) s
+  LIMIT 10;
   `,
     (err, data) => {
       if (err || data.length === 0) {
