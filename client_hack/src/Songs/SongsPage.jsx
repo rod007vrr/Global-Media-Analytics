@@ -20,9 +20,10 @@ import {
   TextField,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import DatePicker from 'react-date-picker';
+import PrimaryButton from '../components/buttons/PrimaryButton';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
-import DatePicker from 'react-date-picker';
 import ScreenGrid from '../components/ScreenGrid';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
@@ -160,6 +161,7 @@ function SongPage() {
             min={60}
             max={660}
             step={10}
+            style={{ color: '#1db954' }}
             onChange={(e, newValue) => setDuration(newValue)}
             valueLabelDisplay="auto"
             // valueLabelFormat={DurationValueLabel}
@@ -172,6 +174,7 @@ function SongPage() {
             min={0}
             max={250}
             step={1}
+            style={{ color: '#1db954' }}
             onChange={(e, newValue) => setTempo(newValue)}
             valueLabelDisplay="auto"
             // valueLabelFormat={(value) => <div>{value}</div>}
@@ -184,6 +187,7 @@ function SongPage() {
             min={0}
             max={1}
             step={0.01}
+            style={{ color: '#1db954' }}
             onChange={(e, newValue) => setDanceability(newValue)}
             valueLabelDisplay="auto"
             // valueLabelFormat={(value) => <div>{value}</div>}
@@ -196,6 +200,7 @@ function SongPage() {
             min={0}
             max={1}
             step={0.01}
+            style={{ color: '#1db954' }}
             onChange={(e, newValue) => setEnergy(newValue)}
             valueLabelDisplay="auto"
             // valueLabelFormat={(value) => <div>{value}</div>}
@@ -208,18 +213,23 @@ function SongPage() {
             min={0}
             max={1}
             step={0.01}
+            style={{ color: '#1db954' }}
             onChange={(e, newValue) => setValence(newValue)}
             valueLabelDisplay="auto"
             // valueLabelFormat={(value) => <div>{value}</div>}
           />
         </Grid>
       </Grid>
-      <Button
+      <PrimaryButton
         onClick={() => search()}
-        style={{ left: '50%', transform: 'translateX(-50%)' }}
+        style={{
+          margin: '40px auto 20px auto',
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
       >
         Search
-      </Button>
+      </PrimaryButton>
       <h2>Results</h2>
       {/* Notice how similar the DataGrid component is to our LazyTable! What are the differences? */}
       <DataGrid
