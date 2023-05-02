@@ -143,7 +143,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
             ))}
           </Grid>
           <Grid item xs={12}>
-            <Typography variant="h7">Top 10 Artists</Typography>
+            {/* <Typography variant="h7">Top 10 Artists</Typography>
             {artists.map((artist, i) => (
               <div>
                 <Typography variant="h8">
@@ -151,7 +151,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
                 </Typography>
                 <br />
               </div>
-            ))}
+            ))} */}
           </Grid>
         </Grid>
       </div>
