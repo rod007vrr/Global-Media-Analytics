@@ -12,6 +12,7 @@ import {
   TextField,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
+import PrimaryButton from '../components/buttons/PrimaryButton';
 
 import config from '../config.json';
 
@@ -20,6 +21,7 @@ function ArtistsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
   const [survData, setSurvData] = useState([]);
+  const [message, setMessage] = useState('Artists');
   const columns = [
     { field: 'title', headerName: 'Title', flex: 1, width: 100 }, // track_name
     { field: 'release_date', headerName: 'Release Date', flex: 1, width: 100 },
@@ -100,15 +102,21 @@ function ArtistsPage() {
     <Container>
       <h2
         style={{
+          top: '0',
+          left: '0',
+          width: '100%',
+          margin: '30px auto auto auto',
+          backgroundColor: '#191414',
+          color: 'white',
           display: 'flex',
           justifyContent: 'center',
         }}
       >
-        Artists
+        {message}
       </h2>
-      <div>
-        <Grid container spacing={1}>
-          <Grid item xs={8}>
+      <div style={{ justifyContent: 'center' }}>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
             <TextField
               label="Find Artist"
               value={artist}
@@ -118,10 +126,16 @@ function ArtistsPage() {
               }}
             />
           </Grid>
-          <Grid item xs={4}>
-            <Button onClick={() => search()} style={{ left: '50%' }}>
+          <Grid item xs={12}>
+            <PrimaryButton
+              onClick={() => {
+                search();
+                setMessage(artist);
+              }}
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
               Find
-            </Button>
+            </PrimaryButton>
           </Grid>
         </Grid>
       </div>
