@@ -44,8 +44,13 @@ function MapPage() {
     'United Kingdom',
   ];
 
+  function resolveName(name) {
+    if (name === 'United States of America') return 'United States';
+    return name;
+  }
+
   function isCountryWithData(country) {
-    return countriesWithData.includes(country);
+    return countriesWithData.includes(resolveName(country));
   }
 
   // Hover Function
@@ -155,30 +160,30 @@ function MapPage() {
             />
           </div>
         </Grid>
-        <Grid item>
-          {clickD ? (
-            <div
-              style={{
-                position: 'relative',
-                right: '25px',
-                top: '25%',
-                left: '-500px',
-                height: '50%',
-              }}
-            >
-              <CountryInfo
-                countryName={
-                  clickD && clickD.properties ? clickD.properties.ADMIN : null
-                }
-                backFunction={() => setClickD(null)}
-                startWeek={startValue ? startValue.getTime() / 1000 : 0}
-                endWeek={
-                  endValue ? endValue.getTime() / 1000 : Number.MAX_SAFE_INTEGER
-                }
-              />
-            </div>
-          ) : null}
-        </Grid>
+        {clickD ? (
+          <div
+            style={{
+              position: 'relative',
+              right: '25px',
+              // top: '5%',
+              left: '-500px',
+              height: '50%',
+            }}
+          >
+            <CountryInfo
+              countryName={
+                clickD && clickD.properties
+                  ? resolveName(clickD.properties.ADMIN)
+                  : null
+              }
+              backFunction={() => setClickD(null)}
+              startWeek={startValue ? startValue.getTime() / 1000 : 0}
+              endWeek={
+                endValue ? endValue.getTime() / 1000 : Number.MAX_SAFE_INTEGER
+              }
+            />
+          </div>
+        ) : null}
       </ScreenGrid>
     </>
   );
