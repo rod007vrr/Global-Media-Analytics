@@ -5,36 +5,28 @@ import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
-import ScreenGrid from '../components/ScreenGrid';
 import { getData } from '../util/api';
 
-// information that needs to be shown on the summary page:
-// 1. Survivability Score
-// 2. Country Similarity
-// 3. Artist Rankings (top 10)
-// 4. Chart Mismatch Score
-
+// A helper button to send a request to the backend to get the similarity score
 function CompareButton({ country1, country2, setSimilarity }) {
+  // determine if we are currently fetching data
   const [isLoading, setLoading] = useState(false);
-
+  // fetch data from backend
   async function handleFetch() {
     if (country1 === '' || country2 === '') {
       return;
     }
     setLoading(true);
     // TODO: replace route with actual route will have to add country1 and country 2 as queries like in MapPage
-    // const res = { data: 0.5 };
     const searchParams = new URLSearchParams({
       country1,
       country2,
     });
     const res = await getData(`country_similarity?${searchParams}`);
-    console.log(res);
     // TODO: sense check if res.data is the right input here
     setSimilarity(res.data.score);
-    console.log('here');
     setLoading(false);
   }
   if (isLoading) {
@@ -51,6 +43,7 @@ function CompareButton({ country1, country2, setSimilarity }) {
   );
 }
 
+// A page that lets you compare two countries and get their similarity score
 function SimilarityPage() {
   const [country1, setCountry1] = React.useState('');
   const [country2, setCountry2] = React.useState('');

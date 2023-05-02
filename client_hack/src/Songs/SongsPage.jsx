@@ -4,27 +4,12 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // Source: https://github.com/vasturiano/react-globe.gl
 // eslint-disable-next-line import/no-extraneous-dependencies
-import {
-  Typography,
-  Button,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  Grid,
-  Link,
-  Slider,
-  TextField,
-} from '@mui/material';
+import { Container, Grid, Link, Slider, TextField } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
-import DatePicker from 'react-date-picker';
 import PrimaryButton from '../components/buttons/PrimaryButton';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
-import ScreenGrid from '../components/ScreenGrid';
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-date-picker/dist/DatePicker.css';
@@ -33,16 +18,10 @@ import 'react-calendar/dist/Calendar.css';
 
 const config = require('../config.json');
 
-// Using MUI create a functional component which has a field where you can input a date range
-
-// function DurationValueLabel() {
-//   return <div>{value}</div>;
-// }
-
+// a Song page to search for songs and display them in a table
 function SongPage() {
   const [pageSize, setPageSize] = useState(10);
   const [data, setData] = useState([]);
-  const [selectedSongId, setSelectedSongId] = useState(null);
 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');

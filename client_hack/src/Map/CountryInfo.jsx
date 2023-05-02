@@ -1,14 +1,19 @@
 /* eslint-disable react/jsx-filename-extension */
-// Create a React Component with that takes in a country name and displays the following country's data as three columns: top 10 songs, top 10 netflix shows, top 10 netflix movies, assume this info is passed in a an array of strings a parameter to the component
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Typography, Button, Grid } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import ScreenGrid from '../components/ScreenGrid';
 import { useData } from '../util/api';
 
+/*
+ * This component is a popup which displays the information for a country. It is used in MapPage.jsx
+ * @param countryName The name of the country to display information for
+ * @param backFunction The function to call when the back button is pressed (makes this popup disappear)
+ * @param startWeek The start week of the date range to display information for
+ * @param endWeek The end week of the date range to display information for
+ */
 function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
-  // TODO: double check category and endpoints here
+  // Fetch the data for the country and make sure to convert query to proper string formatting as well as make updates to ensure that the date matches with backend implementation
   const songParams = new URLSearchParams({
     country: countryName,
     startWeek: startWeek - 14400 || 0,
@@ -45,6 +50,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   });
   const fetchedArtists = useData(`artist_rankings?${artistParams}`);
 
+  // If any of the data is not fetched yet, display a loading circle
   if (
     !fetchedSongs ||
     !fetchedShows ||
@@ -52,7 +58,6 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     !fetchedScore ||
     !fetchedArtists
   ) {
-    console.log('loading');
     return (
       <div style={{ width: '0', margin: 'auto' }}>
         <CircularProgress size={80} />
@@ -64,6 +69,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
   if (!fetchedScore.data) {
     mismatchScore = 0;
   } else {
+    // preprocessing to match  data representation
     const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
     const avg = sum / fetchedScore.data.length;
     mismatchScore = avg;
@@ -89,11 +95,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
       }}
     >
       {' '}
-      <div
-      // style={{
-      //   height: '85%',
-      // }}
-      >
+      <div>
         <Button variant="contained" onClick={backFunction}>
           Back
         </Button>

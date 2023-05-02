@@ -1,16 +1,6 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState } from 'react';
-import {
-  Typography,
-  Button,
-  Checkbox,
-  Container,
-  FormControlLabel,
-  Grid,
-  Link,
-  Slider,
-  TextField,
-} from '@mui/material';
+import { Container, Grid, TextField } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 
@@ -23,16 +13,14 @@ function ArtistsPage() {
   const [survData, setSurvData] = useState([]);
   const [message, setMessage] = useState('Artists');
   const columns = [
-    { field: 'title', headerName: 'Title', flex: 1, width: 100 }, // track_name
+    { field: 'title', headerName: 'Title', flex: 1, width: 100 },
     { field: 'release_date', headerName: 'Release Date', flex: 1, width: 100 },
     { field: 'country', headerName: 'Country', flex: 1, width: 100 },
     { field: 'peak_rank', headerName: 'Peak Rank', flex: 1, width: 100 },
-    // { field: 'album_cover', headerName: 'Album Cover' }, // album cover
-    // { field: 'link', headerName: 'Link' }, // uri
   ];
 
   const survColumns = [
-    { field: 'country', headerName: 'Country', flex: 1, width: 100 }, // track_name
+    { field: 'country', headerName: 'Country', flex: 1, width: 100 },
     {
       field: 'surv_score',
       headerName: 'Survivability Score',

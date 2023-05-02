@@ -1,37 +1,31 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState } from 'react';
 
-// Source: https://github.com/vasturiano/react-globe.gl
-// eslint-disable-next-line import/no-extraneous-dependencies
+// Globe Source: https://github.com/vasturiano/react-globe.gl
 import Globe from 'react-globe.gl';
 import { Typography, Grid } from '@mui/material';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import DatePicker from 'react-date-picker';
 import ScreenGrid from '../components/ScreenGrid';
 import CountryInfo from './CountryInfo';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-date-picker/dist/DatePicker.css';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import 'react-calendar/dist/Calendar.css';
 
-import geoPath from './topography.json';
-
+// raw data used to create svgs for globe
 import geoData from './geoData.json';
 
-// Using MUI create a functional component which has a field where you can input a date range
-
 function MapPage() {
-  // State to capture hovering and clicking as specified by Globe API
+  // State to capture which svg is being hovered and clicked on as specified by Globe API
   const [hoverD, setHoverD] = useState();
   const [clickD, setClickD] = useState();
 
   const countries = geoData;
+  // state to track the start and end dates of the date range
   const [startValue, startOnChange] = useState(new Date());
   const [endValue, endOnChange] = useState(new Date());
 
   // For each country, determine if we have data on it or not
-
   // TODO: replace with call to database - use the datahook
   const countriesWithData = [
     'United States',
@@ -44,16 +38,22 @@ function MapPage() {
     'United Kingdom',
   ];
 
+  // resolve any name conflicts between the frontend and backend
   function resolveName(name) {
     if (name === 'United States of America') return 'United States';
     return name;
   }
 
+  // Determine if a country has data
   function isCountryWithData(country) {
     return countriesWithData.includes(resolveName(country));
   }
 
-  // Hover Function
+  // Function which will be called when a country is hovered over
+  // has three call possible outpus: onMatch, onFail, and onMiddle
+  // onMatch is return when the country is hovered over and is a country with data
+  // onMiddle is returned when the country is hovered over and is not a country with data
+  // onFail is returned when the country is not hovered over
   function hoverFunction(currPoly, onMatch, onFail, onMiddle) {
     if (
       currPoly &&
@@ -68,17 +68,12 @@ function MapPage() {
     return onFail;
   }
 
-  // Handle click
+  // Handle click - if the country has data, set the clickD state to the country
   function clickFunction(currPoly) {
     if (currPoly && isCountryWithData(currPoly.properties.ADMIN)) {
       setClickD(currPoly);
     }
   }
-
-  // function printer(d) {
-  //   console.log('hoverD: ', JSON.stringify(d));
-  //   return d === hoverD ? 0.12 : 0.01;
-  // }
 
   return (
     <>
@@ -177,6 +172,7 @@ function MapPage() {
                   : null
               }
               backFunction={() => setClickD(null)}
+              // convert time to seconds as stored in backend
               startWeek={startValue ? startValue.getTime() / 1000 : 0}
               endWeek={
                 endValue ? endValue.getTime() / 1000 : Number.MAX_SAFE_INTEGER
