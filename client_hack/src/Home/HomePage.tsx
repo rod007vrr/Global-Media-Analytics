@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import Button from '@mui/material/Button';
+import React from 'react';
 import { Typography, Grid } from '@mui/material';
 import ScreenGrid from '../components/ScreenGrid';
 import PrimaryButton from '../components/buttons/PrimaryButton';
-import NavBar from '../components/navbar';
+
+// The HomePage component is the first page that the user sees when they visit the website. It gives an overview of the website and what it does.
 
 function HomePage() {
   const message = `Welcome to Worldwide Media!`;

@@ -36,12 +36,7 @@ async function resolve(promise: Promise<any>) {
   return resolved;
 }
 
-/**
- * To UPDATE DURING DEPLOYMENT USING ENVIRONMENT VARIABLES
- */
 const BACKENDURL = 'http://localhost:8080';
-
-const URLPREFIX = BACKENDURL;
 
 /**
  * A function which makes a GET request to the server when given a url and returns the response data after it is resolved by the {@link resolve} function.
@@ -49,7 +44,7 @@ const URLPREFIX = BACKENDURL;
  * @returns the response data from the server
  */
 async function getData(url: string) {
-  const response = await resolve(axios.get(`${URLPREFIX}/${url}`));
+  const response = await resolve(axios.get(`${BACKENDURL}/${url}`));
   return response;
 }
 
@@ -64,50 +59,14 @@ const useData = (url: string) => {
     const fetchData = async () => {
       const res = await getData(url);
       setData(res);
-      console.log('output');
-      console.log(res);
     };
 
     fetchData();
     // getData(url).then((res) => setData(res.data));
   }, [url]);
-  console.log('data');
-  console.log(data);
   return data;
 };
 
 // https://stackoverflow.com/questions/53059059/react-hooks-making-an-ajax-request
 
-/**
- * A function which makes a post request to the server when given a url and an optional body and returns the response data after it is resolved by the {@link resolve} function.
- * @param url - a string representing the url to make the request to. The format should be 'router/endpoint'
- * @param data - an optional object containing the data in json format to send to the server. Default is an empty object
- * @returns the response from the server after being resolved by the {@link resolve} function
- */
-async function postData(url: string, data = {}) {
-  const response = await resolve(axios.post(`${URLPREFIX}/${url}`, data));
-  return response;
-}
-/**
- * A function which makes a put request to the server when given a url and an optional body and returns the response data after it is resolved by the {@link resolve} function.
- * @param url - a string representing the url to make the request to. The format should be 'router/endpoint'
- * @param data - an optional object containing the data in json format to send to the server. Default is an empty object
- * @returns the response from the server after being resolved by the {@link resolve} function
- */
-async function putData(url: string, data = {}) {
-  const response = await resolve(axios.put(`${URLPREFIX}/${url}`, data));
-  return response;
-}
-
-/**
- * A function which makes a delete request to the server when given a url and an optional body and returns the response data after it is resolved by the {@link resolve} function.
- * @param url - a string representing the url to make the request to. The format should be 'router/endpoint'
- * @param data - an optional object containing the data in json format to send to the server. Default is an empty object
- * @returns the response from the server after being resolved by the {@link resolve} function
- */
-async function deleteData(url: string, data = {}) {
-  const response = await resolve(axios.delete(`${URLPREFIX}/${url}`, data));
-  return response;
-}
-
-export { getData, putData, deleteData, postData, useData };
+export { getData, useData };

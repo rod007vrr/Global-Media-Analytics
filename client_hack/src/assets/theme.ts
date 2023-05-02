@@ -5,7 +5,6 @@ import { createTheme } from '@mui/material/styles';
 import COLORS from './colors';
 import 'typeface-hk-grotesk';
 
-// https://github.com/hack4impact/chapter-website-template/blob/main/public/style.css
 const theme = createTheme({
   palette: {
     primary: {

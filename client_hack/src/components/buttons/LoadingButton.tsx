@@ -3,7 +3,7 @@ import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 
 /**
- * A disabled button that displays a loading indicator.
+ * A disabled button that displays a loading indicator. To be used to prevent users from making multiple requests before first request is finished.
  */
 function LoadingButton() {
   return (
