@@ -46,10 +46,14 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     );
   }
 
-  const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
-  const avg = sum / fetchedScore.data.length;
-
-  const mismatchScore = avg;
+  let mismatchScore = 0;
+  if (!fetchedScore.data) {
+    mismatchScore = 0;
+  } else {
+    const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
+    const avg = sum / fetchedScore.data.length;
+    mismatchScore = avg;
+  }
 
   const songs = fetchedSongs.data || [];
   const shows = fetchedShows.data || [];
