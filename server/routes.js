@@ -379,7 +379,8 @@ const search_songs = async function (req, res) {
   const date_start =
     req.query.date_start == undefined ? -1 : req.query.date_start;
   const date_end = req.query.date_end == undefined ? -1 : req.query.date_end;
-  const country = req.query.country == undefined ? "undefined" : req.query.country;
+  const country =
+    req.query.country == undefined ? "undefined" : req.query.country;
   const num_weeks = req.query.num_weeks == undefined ? -1 : req.query.num_weeks;
   const dancemin = req.query.dancemin == undefined ? -1 : req.query.dancemin;
   const dancemax = req.query.dancemax == undefined ? -1 : req.query.dancemax;
@@ -392,11 +393,8 @@ const search_songs = async function (req, res) {
   const durmin = req.query.durmin == undefined ? -1 : req.query.durmin;
   const durmax = req.query.durmax == undefined ? -1 : req.query.durmax;
   const release_date =
-    req.query.release_date == "undefined"
-      ? undefined
-      : req.query.release_date;
-  const artist =
-    req.query.artist == undefined ? "undefined" : req.query.artist;
+    req.query.release_date == "undefined" ? undefined : req.query.release_date;
+  const artist = req.query.artist == undefined ? "undefined" : req.query.artist;
   const song = req.query.title == undefined ? "undefined" : req.query.title;
 
   connection.query(
@@ -436,7 +434,9 @@ const search_songs = async function (req, res) {
         // res.json({});
         res.sendStatus(500);
       } else {
-        console.log("QUERY: \n" + `
+        console.log(
+          "QUERY: \n" +
+            `
         WITH numWeeks AS (
           SELECT uri, COUNT(*) AS num_weeks
           FROM spotify_ranks
@@ -463,7 +463,8 @@ const search_songs = async function (req, res) {
         AND ('${release_date}' = 'undefined' OR s.release_date = '${release_date}')
         AND ('${artist}' = 'undefined' OR s.artist_names LIKE '%${artist}%')
         AND ('${song}' = 'undefined' OR s.track_name LIKE '%${song}%')
-          `)
+          `
+        );
         // Here, we return results of the query as an object, keeping only relevant data
         // being song_id and title which you will add. In this case, there is only one song
         // so we just directly access the first element of the query results array (data)
@@ -541,8 +542,8 @@ returns: an integer corresponding exactly to the similarity score. The closer to
 status: 200 on success and 500 on error
 */
 const country_similarity = async function (req, res) {
-  const country1 = req.query.country2 == "undefined" ? "": req.query.country1;
-  const country2 = req.query.country2 == "undefined" ? "": req.query.country2;
+  const country1 = req.query.country2 == "undefined" ? "" : req.query.country1;
+  const country2 = req.query.country2 == "undefined" ? "" : req.query.country2;
 
   connection.query(
     `
@@ -697,6 +698,23 @@ const countries_in_database = async function (req, res) {
   );
 };
 
+const countries_in_music = async function (req, res) {
+  connection.query(
+    `SELECT DISTINCT country
+    FROM spotify_ranks;`,
+    (err, data) => {
+      if (err || data.length === 0) {
+        console.log(err);
+        res.sendStatus(500);
+      } else {
+        const parsed_data = JSON.parse(JSON.stringify(data));
+        console.log(parsed_data);
+        res.status(200).send(parsed_data);
+      }
+    }
+  );
+};
+
 /**
  * GET ROUTE - retrieves show rankings for a given date range in a given country
  * @param req needs to contain:
@@ -707,50 +725,51 @@ const movie_diff_country = async function (req, res) {
   // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
   // we can also send back an HTTP status code to indicate an improper request
   const country = req.query.country == "undefined" ? -1 : req.query.country;
-  const startWeek = req.query.startWeek == "undefined" ? -1 : req.query.startWeek;
+  const startWeek =
+    req.query.startWeek == "undefined" ? -1 : req.query.startWeek;
   const endWeek = req.query.endWeek == "undefined" ? -1 : req.query.endWeek;
   connection.query(`SET @audience_rank = 0;`);
   connection.query(
     `
-WITH reviewedfilmsinglobal
-AS
-  (
-           SELECT   title,
+    WITH reviewedfilmsinglobal
+    AS
+      (
+               SELECT   title,
+                        audience_score,
+                        genre,
+                        week,
+                        weekly_rank
+               FROM     netflix_ratings r
+               JOIN     netflix_ranks gr
+               ON       r.title = gr.show_title
+               WHERE    audience_score > 0
+               AND      country = "${country}"
+               AND      title IN
+                        (
+                               SELECT netflix_global_ranks.show_title AS title
+                               FROM   netflix_global_ranks
+                               WHERE  week>= ${startWeek}
+                               AND    week <= ${endWeek})
+               ORDER BY audience_score DESC ), with_rank
+    AS
+      (
+             SELECT title,
+                    @audience_rank := @audience_rank + 1 AS audience_rank,
                     audience_score,
-                    genre,
                     week,
                     weekly_rank
-           FROM     netflix_ratings r
-           JOIN     netflix_ranks gr
-           ON       r.title = gr.show_title
-           WHERE    audience_score > 0
-           AND      country = "Bahamas"
-           AND      title IN
-                    (
-                           SELECT netflix_global_ranks.show_title AS title
-                           FROM   netflix_global_ranks
-                           WHERE  week>= 0
-                           AND    week <= 100000000000)
-           ORDER BY audience_score DESC ), with_rank
-AS
-  (
-         SELECT title,
-                @audience_rank := @audience_rank + 1 AS audience_rank,
-                audience_score,
-                week,
-                weekly_rank
-         FROM   reviewedfilmsinglobal ), diff
-AS
-  (
-         SELECT *,
-                abs(audience_rank-weekly_rank) AS diff
-         FROM   with_rank )
-  SELECT   week,
-           avg(diff)/max(diff) AS diff
-  FROM     diff
-  WHERE    week>= 0
-  AND      week <= 100000000000
-  GROUP BY week;
+             FROM   reviewedfilmsinglobal ), diff
+    AS
+      (
+             SELECT *,
+                    abs(audience_rank-weekly_rank) AS diff
+             FROM   with_rank )
+      SELECT   week,
+               avg(diff)/max(diff) AS diff
+      FROM     diff
+      WHERE  week>= ${startWeek}
+      AND    week <= ${endWeek}
+      GROUP BY week;
   `,
     (err, data) => {
       if (err || data.length === 0) {
@@ -841,7 +860,8 @@ module.exports = {
   chart_survivability,
   country_similarity,
   movie_diff_country,
-  get_songs_charted_by_artist
+  get_songs_charted_by_artist,
+  countries_in_music,
 };
 
 // COMMENTS

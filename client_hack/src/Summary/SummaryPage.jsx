@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
 import ScreenGrid from '../components/ScreenGrid';
-import { getData } from '../util/api';
+import { useData } from '../util/api';
 
 // information that needs to be shown on the summary page:
 // 1. Survivability Score
@@ -52,6 +52,14 @@ function SimilarityPage() {
   const [similarity, setSimilarity] = useState(null);
 
   // To Do - replace with call to database
+
+  const fetchedCountries = useData(`spotify_countries`);
+  setTimeout(1000);
+  if (fetchedCountries) {
+    const goodCountries = fetchedCountries.data || [];
+  }
+  console.log(fetchedCountries);
+
   const countries = [
     'United States of America',
     'Canada',

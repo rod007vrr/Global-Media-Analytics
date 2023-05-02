@@ -26,7 +26,8 @@ app.get("/countries_in_db", routes.countries_in_database);
 app.get("/chart_survivability", routes.chart_survivability);
 app.get("/country_similarity", routes.country_similarity);
 app.get("/movie_diff_country", routes.movie_diff_country);
-app.get("/artists", routes.get_songs_charted_by_artist)
+app.get("/artists", routes.get_songs_charted_by_artist);
+app.get("/spotify_countries", routes.countries_in_music);
 
 app.listen(config.server_port, () => {
   console.log(
