@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
-import { getData } from '../util/api';
+import { getData, useData } from '../util/api';
 
 // A helper button to send a request to the backend to get the similarity score
 function CompareButton({ country1, country2, setSimilarity }) {
@@ -49,20 +49,16 @@ function SimilarityPage() {
   const [country2, setCountry2] = React.useState('');
   const [similarity, setSimilarity] = useState(null);
 
-  // To Do - replace with call to database
-  const countries = [
-    'United States',
-    'Canada',
-    'Argentina',
-    'Brazil',
-    'Mexico',
-    'France',
-    'Spain',
-    'United Kingdom',
-  ];
+  const fetchedCountries = useData(`spotify_countries`) || { data: [] };
+  const listCountriesDict = fetchedCountries.data;
+  const regularList = listCountriesDict.map((obj) => obj.country);
+
+  console.log(regularList);
+
   const handleChange = (event, setter) => {
     setter(event.target.value);
   };
+
   return (
     <div>
       <Typography variant="h3" textAlign="center" gutterBottom margin="30px">
@@ -90,7 +86,7 @@ function SimilarityPage() {
                 label="Country 1"
                 onChange={(event) => handleChange(event, setCountry1)}
               >
-                {countries.map((country) => {
+                {regularList.map((country) => {
                   return <MenuItem value={country}>{country}</MenuItem>;
                 })}
               </Select>
@@ -108,7 +104,7 @@ function SimilarityPage() {
                 label="Country 1"
                 onChange={(event) => handleChange(event, setCountry2)}
               >
-                {countries
+                {regularList
                   .filter((country) => country !== country1)
                   .map((country) => {
                     return <MenuItem value={country}>{country}</MenuItem>;
