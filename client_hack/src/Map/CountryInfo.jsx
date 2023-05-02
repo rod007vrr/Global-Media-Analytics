@@ -37,7 +37,21 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
     endWeek: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
   });
   const fetchedScore = useData(`movie_diff_country?${scoreParams}`);
-  if (!fetchedSongs || !fetchedShows || !fetchedMovies || !fetchedScore) {
+
+  const artistParams = new URLSearchParams({
+    country: countryName,
+    weekmin: startWeek - 14400 || 0,
+    weekmax: endWeek - 14400 || Number.MAX_SAFE_INTEGER,
+  });
+  const fetchedArtists = useData(`artist_rankings?${artistParams}`);
+
+  if (
+    !fetchedSongs ||
+    !fetchedShows ||
+    !fetchedMovies ||
+    !fetchedScore ||
+    !fetchedArtists
+  ) {
     console.log('loading');
     return (
       <div style={{ width: '0', margin: 'auto' }}>
@@ -45,6 +59,8 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
       </div>
     );
   }
+
+  const artists = fetchedArtists.data || [];
 
   const sum = fetchedScore.data.reduce((total, date) => total + date.diff, 0);
   const avg = sum / fetchedScore.data.length;
@@ -119,6 +135,17 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
               <div>
                 <Typography variant="h8">
                   {i + 1}. {movie.show_title}
+                </Typography>
+                <br />
+              </div>
+            ))}
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="h7">Top 10 Artists</Typography>
+            {artists.map((artist, i) => (
+              <div>
+                <Typography variant="h8">
+                  {i + 1}. {artist.artist_individual}
                 </Typography>
                 <br />
               </div>
