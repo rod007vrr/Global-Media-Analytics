@@ -66,13 +66,14 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
         marginBottom: '25px',
         backgroundColor: 'white',
         borderRadius: '25px',
+        overflow: 'auto',
       }}
     >
       {' '}
       <div
-        style={{
-          height: '85%',
-        }}
+      // style={{
+      //   height: '85%',
+      // }}
       >
         <Button variant="contained" onClick={backFunction}>
           Back
@@ -82,12 +83,19 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
         <Typography variant="h6" gutterBottom>
           {countryName}
         </Typography>
-        <ScreenGrid container spacing={2}>
+        <Grid
+          container
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="row"
+          overflow="auto"
+        >
           <Grid item xs={12}>
             <Typography variant="h7">Top 10 Songs</Typography>
             {songs.map((song, i) => (
               <div>
-                <Typography variant="h8">
+                <Typography variant="h9">
                   {i + 1}. {song.track_name}
                 </Typography>
                 <br />
@@ -98,7 +106,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
             <Typography variant="h7">Top 10 Shows</Typography>
             {shows.map((show, i) => (
               <div>
-                <Typography variant="h8">
+                <Typography variant="h9">
                   {i + 1}. {show.show_title}
                 </Typography>
                 <br />
@@ -116,7 +124,7 @@ function CountryInfo({ countryName, backFunction, startWeek, endWeek }) {
               </div>
             ))}
           </Grid>
-        </ScreenGrid>
+        </Grid>
       </div>
       <div style={{ textAlign: 'center' }}>
         <Typography variant="h7" align="center" inline>

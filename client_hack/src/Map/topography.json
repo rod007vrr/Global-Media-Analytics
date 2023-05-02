@@ -12332,7 +12332,7 @@
     {
       "type": "Feature",
       "id": "USA",
-      "properties": { "name": "United States of America" },
+      "properties": { "name": "United States" },
       "geometry": {
         "type": "MultiPolygon",
         "coordinates": [
