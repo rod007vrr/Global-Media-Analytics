@@ -14,6 +14,7 @@ import 'react-calendar/dist/Calendar.css';
 
 // raw data used to create svgs for globe
 import geoData from './geoData.json';
+import { useData } from '../util/api';
 
 function MapPage() {
   // State to capture which svg is being hovered and clicked on as specified by Globe API
@@ -21,23 +22,15 @@ function MapPage() {
   const [clickD, setClickD] = useState();
 
   const countries = geoData;
-  // state to track the start and end dates of the date range
-  const [startValue, startOnChange] = useState(new Date());
+  const [startValue, startOnChange] = useState(new Date('2021-02-04'));
   const [endValue, endOnChange] = useState(new Date());
 
   // For each country, determine if we have data on it or not
   // TODO: replace with call to database - use the datahook
-  const countriesWithData = [
-    'United States',
-    'Canada',
-    'Argentina',
-    'Brazil',
-    'Mexico',
-    'France',
-    'Spain',
-    'United Kingdom',
-  ];
 
+  const fetchedCountries = useData(`countries_in_db`) || { data: [] };
+  const listCountriesDict = fetchedCountries.data;
+  const countriesWithData = listCountriesDict.map((obj) => obj.country);
   // resolve any name conflicts between the frontend and backend
   function resolveName(name) {
     if (name === 'United States of America') return 'United States';
