@@ -9,9 +9,7 @@ import { store, persistor } from './util/redux/store';
 import NotFoundPage from './NotFound/NotFoundPage';
 import HomePage from './Home/HomePage';
 import SongsPage from './Songs/SongsPage';
-import MapPage from './Map/MapPage';
 import ArtistsPage from './Artists/ArtistsPage';
-import SimilarityPage from './Summary/SummaryPage';
 import AdminDashboardPage from './AdminDashboard/AdminDashboardPage';
 import {
   UnauthenticatedRoutesWrapper,

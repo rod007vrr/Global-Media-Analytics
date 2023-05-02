@@ -171,8 +171,10 @@ function MapPage() {
                   clickD && clickD.properties ? clickD.properties.ADMIN : null
                 }
                 backFunction={() => setClickD(null)}
-                startWeek={startValue.getTime() / 1000}
-                endWeek={endValue.getTime() / 1000}
+                startWeek={startValue ? startValue.getTime() / 1000 : 0}
+                endWeek={
+                  endValue ? endValue.getTime() / 1000 : Number.MAX_SAFE_INTEGER
+                }
               />
             </div>
           ) : null}
