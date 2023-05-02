@@ -34,7 +34,7 @@ function MapPage() {
 
   // TODO: replace with call to database - use the datahook
   const countriesWithData = [
-    'United States of America',
+    'United States',
     'Canada',
     'Argentina',
     'Brazil',

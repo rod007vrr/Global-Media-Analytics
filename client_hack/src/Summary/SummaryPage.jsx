@@ -8,7 +8,7 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
 import ScreenGrid from '../components/ScreenGrid';
-import { useData } from '../util/api';
+import { getData } from '../util/api';
 
 // information that needs to be shown on the summary page:
 // 1. Survivability Score
@@ -19,16 +19,21 @@ import { useData } from '../util/api';
 function CompareButton({ country1, country2, setSimilarity }) {
   const [isLoading, setLoading] = useState(false);
 
-  async function handlePromote() {
+  async function handleFetch() {
     if (country1 === '' || country2 === '') {
       return;
     }
     setLoading(true);
     // TODO: replace route with actual route will have to add country1 and country 2 as queries like in MapPage
-    const res = { data: 0.5 };
-    // const res = await getData(`route${country1}/${country2}`);
+    // const res = { data: 0.5 };
+    const searchParams = new URLSearchParams({
+      country1,
+      country2,
+    });
+    const res = await getData(`country_similarity?${searchParams}`);
+    console.log(res);
     // TODO: sense check if res.data is the right input here
-    setSimilarity(res.data);
+    setSimilarity(res.data.score);
     console.log('here');
     setLoading(false);
   }
@@ -38,7 +43,7 @@ function CompareButton({ country1, country2, setSimilarity }) {
   return (
     <Button
       variant="contained"
-      onClick={(_e) => handlePromote()}
+      onClick={(_e) => handleFetch()}
       style={{ backgroundColor: '#1db954' }}
     >
       Compare
@@ -52,16 +57,8 @@ function SimilarityPage() {
   const [similarity, setSimilarity] = useState(null);
 
   // To Do - replace with call to database
-
-  const fetchedCountries = useData(`spotify_countries`);
-  setTimeout(1000);
-  if (fetchedCountries) {
-    const goodCountries = fetchedCountries.data || [];
-  }
-  console.log(fetchedCountries);
-
   const countries = [
-    'United States of America',
+    'United States',
     'Canada',
     'Argentina',
     'Brazil',
