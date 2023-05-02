@@ -11,6 +11,7 @@ import {
   Slider,
   TextField,
 } from '@mui/material';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { DataGrid } from '@mui/x-data-grid';
 import PrimaryButton from '../components/buttons/PrimaryButton';
 

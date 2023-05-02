@@ -9,6 +9,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import LoadingButton from '../components/buttons/LoadingButton';
 import ScreenGrid from '../components/ScreenGrid';
 import { getData } from '../util/api';
+import config from '../config.json';
+import PrimaryButton from '../components/buttons/PrimaryButton';
 
 // information that needs to be shown on the summary page:
 // 1. Survivability Score
@@ -24,11 +26,7 @@ function CompareButton({ country1, country2, setSimilarity }) {
       return;
     }
     setLoading(true);
-    // TODO: replace route with actual route will have to add country1 and country 2 as queries like in MapPage
-    const res = { data: 0.5 };
-    // const res = await getData(`route${country1}/${country2}`);
-    // TODO: sense check if res.data is the right input here
-    setSimilarity(res.data);
+    // findSimilarity();
     console.log('here');
     setLoading(false);
   }
@@ -53,7 +51,7 @@ function SimilarityPage() {
 
   // To Do - replace with call to database
   const countries = [
-    'United States of America',
+    'United States',
     'Canada',
     'Argentina',
     'Brazil',
@@ -62,6 +60,21 @@ function SimilarityPage() {
     'Spain',
     'United Kingdom',
   ];
+
+  const findSimilarity = () => {
+    console.log('requested');
+    fetch(
+      `http://${config.server_host}:${config.server_port}/country_similarity?country1=${country1}&country2=${country2}`,
+    )
+      .then((res) => res.json())
+      .then((resJson) => {
+        // DataGrid expects an array of objects with a unique id.
+        // To accomplish this, we use a map with spread syntax (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
+        const result = resJson.score;
+        setSimilarity(result);
+      });
+  };
+
   const handleChange = (event, setter) => {
     setter(event.target.value);
   };
@@ -125,7 +138,9 @@ function SimilarityPage() {
           country1={country1}
           country2={country2}
           setSimilarity={setSimilarity}
-        />
+        >
+          Compare
+        </CompareButton>
       </div>
       {similarity ? (
         <Typography variant="h4" textAlign="center" margin="70px">

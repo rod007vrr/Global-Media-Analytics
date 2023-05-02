@@ -544,6 +544,10 @@ const country_similarity = async function (req, res) {
   const country1 = req.query.country2 == "undefined" ? "": req.query.country1;
   const country2 = req.query.country2 == "undefined" ? "": req.query.country2;
 
+  console.log('requested');
+  console.log(country1);
+  console.log(country2);
+
   connection.query(
     `
     WITH same_song_same_week AS (
@@ -572,7 +576,7 @@ const country_similarity = async function (req, res) {
       SELECT (3 * same_week.num_shared_top_tens + 2 * same_song_different_week.num_shared_top_tens + artists_with_top_tens_shared.num) as score
       FROM same_song_same_week same_week, same_song_different_week, artists_with_top_tens_shared
     `
-  ),
+  ,
     (err, data) => {
       if (err || data.length === 0) {
         console.log(err);
@@ -580,7 +584,7 @@ const country_similarity = async function (req, res) {
       } else {
         res.status(200).send(data);
       }
-    };
+    });
 };
 /**
  * GET ROUTE - retrieves artist rankings for a given week in a given country
@@ -603,7 +607,7 @@ const artist_rankings = async function (req, res) {
     song_chart_week,
     country,
     Sum(pscore) AS value
-FROM   (SELECT artist_individual,
+    FROM   (SELECT artist_individual,
             uri
      FROM   spotify_songs ss
             JOIN (SELECT artist_names,
