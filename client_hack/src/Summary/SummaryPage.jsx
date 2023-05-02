@@ -26,7 +26,7 @@ function CompareButton({ country1, country2, setSimilarity }) {
     });
     const res = await getData(`country_similarity?${searchParams}`);
     // TODO: sense check if res.data is the right input here
-    setSimilarity(res.data.score);
+    setSimilarity(res.data[0].score);
     setLoading(false);
   }
   if (isLoading) {
