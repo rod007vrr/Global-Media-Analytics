@@ -1,5 +1,4 @@
-# final-project-450
-CIS 4500 Final Project 
+# Global-Media_Analytics
 
 Worldwide Media
 
